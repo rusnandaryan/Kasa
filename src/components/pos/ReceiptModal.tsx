@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { Printer, MessageCircle, X, Check, Share2 } from 'lucide-react';
 import { Order } from '@/core/types';
@@ -16,6 +16,21 @@ interface ReceiptModalProps {
 export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClose }) => {
   const { branding } = useAppStore();
   const receiptPrintRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen || !order) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F9') {
+        e.preventDefault();
+        window.print();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, order, onClose]);
 
   if (!isOpen || !order) return null;
 

@@ -57,6 +57,17 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
     calculateShiftTotals();
   }, [isOpen, activeShift]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !activeShift) return null;
 
   const expectedClosing = activeShift.openingCash + cashSalesTotal - cashExpenseTotal;
@@ -186,6 +197,11 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
                 className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 text-lg font-extrabold tabular-nums text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            {actualCash > 0 && (
+              <p className="text-xs font-bold text-blue-700 mt-1.5 tabular-nums">
+                Terbaca: {formatRupiah(actualCash)}
+              </p>
+            )}
           </div>
 
           {/* Cash Discrepancy Status Card */}

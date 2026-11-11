@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
 import { Product } from '@/core/types';
 import { formatRupiah } from '@/core/formatters';
@@ -25,6 +25,17 @@ export const VariantModal: React.FC<VariantModalProps> = ({
   const [selectedOptions, setSelectedOptions] = useState<Record<string, { optionName: string; priceDelta: number }>>({});
   const [notes, setNotes] = useState('');
   const [openPriceInput, setOpenPriceInput] = useState<number>(product?.sellingPrice || 0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen || !product) return null;
 

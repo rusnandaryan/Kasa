@@ -53,6 +53,10 @@ export const POSTerminal: React.FC = () => {
             <span>Bayar Cepat</span>
           </span>
           <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">F9</kbd>
+            <span>Cetak Struk</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">Esc</kbd>
             <span>Tutup Dialog</span>
           </span>

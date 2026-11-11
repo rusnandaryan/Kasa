@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ArrowDownRight, ArrowUpRight, Camera, Check } from 'lucide-react';
 import { CashflowType, FundSource } from '@/core/types';
 import { db } from '@/core/db';
 import { useAppStore } from '@/core/store';
+import { formatRupiah } from '@/core/formatters';
 
 interface CashflowEntryModalProps {
   isOpen: boolean;
@@ -27,6 +28,17 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
   const [fundSource, setFundSource] = useState<FundSource>('cash_drawer');
   const [description, setDescription] = useState('');
   const [receiptPhotoUrl, setReceiptPhotoUrl] = useState<string>('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -170,6 +182,11 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 text-lg font-extrabold tabular-nums text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            {amount > 0 && (
+              <p className="text-xs font-bold text-blue-700 mt-1.5 tabular-nums">
+                Terbaca: {formatRupiah(amount)}
+              </p>
+            )}
           </div>
 
           {/* Category */}

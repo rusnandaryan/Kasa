@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldCheck, X, Delete } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 
@@ -22,6 +22,17 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
   const { allMembers } = useAppStore();
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
 

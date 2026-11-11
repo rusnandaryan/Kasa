@@ -37,6 +37,11 @@ export const ShortcutModal: React.FC<ShortcutModalProps> = ({ isOpen, onClose })
       desc: 'Membuka modal proses pembayaran untuk pesanan aktif di keranjang.',
     },
     {
+      key: 'F9',
+      name: 'Cetak Struk Thermal',
+      desc: 'Memicu cetak struk kasir saat jendela transaksi selesai terbuka.',
+    },
+    {
       key: 'Esc',
       name: 'Tutup Dialog / Batal',
       desc: 'Menutup pop-up pembayaran, struk, atau modal lain yang sedang aktif.',

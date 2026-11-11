@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   ArrowRight,
@@ -29,6 +29,17 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
   const [selectedColor, setSelectedColor] = useState(branding.themeColor);
   const [ownerPin, setOwnerPin] = useState('123456');
   const [cashierPin, setCashierPin] = useState('112233');
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Clock, Play, Trash2 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 import { formatRupiah, formatTimeOnly } from '@/core/formatters';
@@ -12,6 +12,17 @@ interface HoldOrdersModalProps {
 
 export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClose }) => {
   const { heldOrders, restoreHeldOrder, deleteHeldOrder, branding } = useAppStore();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 

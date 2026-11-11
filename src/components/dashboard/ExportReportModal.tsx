@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { X, Printer, Download, FileSpreadsheet } from 'lucide-react';
 import { Order, CashflowEntry } from '@/core/types';
@@ -32,6 +32,17 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
 }) => {
   const { branding } = useAppStore();
   const printAreaRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
