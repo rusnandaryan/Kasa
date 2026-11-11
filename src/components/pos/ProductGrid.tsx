@@ -23,8 +23,14 @@ export const ProductGrid: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const loadData = async () => {
-    const cats = await db.categories.where({ isActive: true }).sortBy('sortOrder');
-    const prods = await db.products.where({ isArchived: false, isAvailable: true }).toArray();
+    const allCats = await db.categories.toArray();
+    const cats = allCats
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const allProds = await db.products.toArray();
+    const prods = allProds.filter((p) => !p.isArchived && p.isAvailable);
+
     setCategories(cats);
     setProducts(prods);
   };

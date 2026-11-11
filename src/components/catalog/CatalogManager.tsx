@@ -34,8 +34,14 @@ export const CatalogManager: React.FC = () => {
   const [showCatForm, setShowCatForm] = useState(false);
 
   const loadData = async () => {
-    const cats = await db.categories.where({ isActive: true }).sortBy('sortOrder');
-    const prods = await db.products.where({ isArchived: false }).toArray();
+    const allCats = await db.categories.toArray();
+    const cats = allCats
+      .filter((c) => c.isActive)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    const allProds = await db.products.toArray();
+    const prods = allProds.filter((p) => !p.isArchived);
+
     setCategories(cats);
     setProducts(prods);
   };

@@ -26,12 +26,17 @@ export class KasaDexieDB extends Dexie {
     this.version(1).stores({
       stores: 'id, brandName',
       members: 'id, storeId, role, pinCode',
-      categories: 'id, storeId, sortOrder',
+      categories: 'id, storeId, sortOrder, isActive',
       products: 'id, storeId, categoryId, name, skuBarcode, isAvailable, isArchived',
       orders: 'id, storeId, shiftId, invoiceNumber, paymentStatus, createdAt',
       cashflow: 'id, storeId, shiftId, entryType, fundSource, transactionDate',
       shifts: 'id, storeId, status, openedAt',
       auditLogs: 'id, storeId, action, createdAt',
+    });
+
+    this.version(2).stores({
+      categories: 'id, storeId, sortOrder, isActive',
+      products: 'id, storeId, categoryId, name, skuBarcode, isAvailable, isArchived, [isArchived+isAvailable]',
     });
   }
 }
