@@ -91,22 +91,23 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
               Catat {entryType === 'expense' ? 'Pengeluaran (Uang Keluar)' : 'Pemasukan (Uang Masuk)'}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Pencatatan kas untuk laporan laba bersih yang presisi
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+            aria-label="Tutup form catatan kas"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,7 +156,7 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
               Nominal (Rp) *
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm">
                 Rp
               </span>
               <input
@@ -205,7 +206,7 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 }`}
               >
                 <p className="font-bold">Kas Laci Kasir</p>
-                <p className="text-[10px] text-slate-400 font-normal">Mempengaruhi uang fisik laci</p>
+                <p className="text-[10px] text-slate-500 font-normal">Mempengaruhi uang fisik laci</p>
               </button>
 
               <button
@@ -218,7 +219,7 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 }`}
               >
                 <p className="font-bold">Rekening Bank / Owner</p>
-                <p className="text-[10px] text-slate-400 font-normal">Tidak potong kas laci kasir</p>
+                <p className="text-[10px] text-slate-500 font-normal">Tidak potong kas laci kasir</p>
               </button>
             </div>
           </div>
@@ -254,6 +255,7 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setReceiptPhotoUrl('')}
+                  aria-label="Hapus foto nota"
                   className="absolute top-2 right-2 p-1.5 rounded-full bg-rose-600 text-white text-xs hover:bg-rose-700"
                 >
                   <X className="w-4 h-4" />
@@ -261,9 +263,9 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
               </div>
             ) : (
               <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-slate-200 rounded-xl hover:border-blue-400 bg-slate-50 hover:bg-white cursor-pointer transition-colors">
-                <Camera className="w-5 h-5 text-slate-400 mb-1" />
+                <Camera className="w-5 h-5 text-slate-500 mb-1" />
                 <span className="text-xs font-semibold text-slate-600">Ambil Foto / Unggah Nota</span>
-                <span className="text-[10px] text-slate-400">JPG, PNG atau WebP</span>
+                <span className="text-[10px] text-slate-500">JPG, PNG atau WebP</span>
                 <input
                   type="file"
                   accept="image/*"

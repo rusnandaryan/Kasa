@@ -176,22 +176,23 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
               {product ? `Edit ${branding.customTerminology.itemLabel}` : `Tambah ${branding.customTerminology.itemLabel} Baru`}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Kelola harga, modal (HPP), stok, dan varian
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+            aria-label="Tutup form produk"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -291,7 +292,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   type="checkbox"
                   checked={isOpenPrice}
                   onChange={(e) => setIsOpenPrice(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-0"
+                  className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
                 <span>Harga Fleksibel (Open Price)</span>
               </label>
@@ -301,7 +302,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   type="checkbox"
                   checked={allowDecimalQty}
                   onChange={(e) => setAllowDecimalQty(e.target.checked)}
-                  className="rounded text-blue-600 focus:ring-0"
+                  className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                 />
                 <span>Boleh Kuantitas Desimal (misal 1.5 Kg)</span>
               </label>
@@ -319,7 +320,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 value={skuBarcode}
                 onChange={(e) => setSkuBarcode(e.target.value)}
                 placeholder="Scan atau ketik barcode produk"
-                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-800"
+                className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-mono text-slate-800 placeholder:text-slate-500"
               />
             </div>
 
@@ -329,7 +330,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   type="checkbox"
                   checked={trackInventory}
                   onChange={(e) => setTrackInventory(e.target.checked)}
-                  className="rounded text-amber-600 focus:ring-0"
+                  className="rounded text-amber-600 focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                 />
                 <span>Lacak Pengurangan Stok Otomatis</span>
               </label>
@@ -387,7 +388,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRemoveVariantGroup(gIdx)}
-                      className="text-slate-400 hover:text-rose-600 p-0.5"
+                      aria-label={`Hapus grup varian ${grp.groupName}`}
+                      className="text-slate-500 hover:text-rose-600 p-0.5"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -402,10 +404,10 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                         value={opt.name}
                         onChange={(e) => handleUpdateOption(gIdx, oIdx, e.target.value, opt.priceDelta)}
                         placeholder="Nama Opsi"
-                        className="flex-1 h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs"
+                        className="flex-1 h-8 px-2.5 rounded-lg border border-slate-200 bg-white text-xs placeholder:text-slate-500"
                       />
                       <div className="flex items-center gap-1 w-28">
-                        <span className="text-[10px] text-slate-400">+Rp</span>
+                        <span className="text-[10px] text-slate-500">+Rp</span>
                         <input
                           type="number"
                           value={opt.priceDelta || 0}
@@ -418,7 +420,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleRemoveOption(gIdx, oIdx)}
-                        className="text-slate-400 hover:text-rose-600"
+                        aria-label={`Hapus pilihan opsi ${opt.name}`}
+                        className="text-slate-500 hover:text-rose-600"
                       >
                         <X className="w-3.5 h-3.5" />
                       </button>
@@ -435,7 +438,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 placeholder="Contoh: Ukuran, Level Pedas, Topping"
-                className="flex-1 h-9 px-3 rounded-lg border border-slate-200 text-xs"
+                className="flex-1 h-9 px-3 rounded-lg border border-slate-200 text-xs placeholder:text-slate-500"
               />
               <button
                 type="button"
@@ -455,7 +458,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="checkbox"
                 checked={isAvailable}
                 onChange={(e) => setIsAvailable(e.target.checked)}
-                className="rounded text-emerald-600 focus:ring-0"
+                className="rounded text-emerald-600 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden"
               />
               <span>Tersedia untuk Dijual di Kasir</span>
             </label>

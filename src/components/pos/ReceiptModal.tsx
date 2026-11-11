@@ -67,8 +67,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
   const is58mm = branding.receiptConfig.paperSize === '58mm';
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-2xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col max-h-[95vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full flex flex-col max-h-[95vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header Modal Bar */}
         <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
@@ -77,14 +77,15 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
             </div>
             <div>
               <h3 className="text-sm font-bold text-slate-900">Transaksi Berhasil</h3>
-              <p className="text-[11px] text-slate-500 font-mono">{order.invoiceNumber}</p>
+              <p className="text-[11px] text-slate-600 font-mono">{order.invoiceNumber}</p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200"
+            aria-label="Tutup pratinjau struk"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,10 +121,10 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
                 <p className="text-[11px] text-slate-600">{branding.receiptConfig.headerText}</p>
               )}
               {branding.receiptConfig.showStoreAddress && (
-                <p className="text-[10px] text-slate-500 leading-tight">{branding.address}</p>
+                <p className="text-[10px] text-slate-600 leading-tight">{branding.address}</p>
               )}
               {branding.receiptConfig.showWhatsapp && (
-                <p className="text-[10px] text-slate-500">WA: {branding.phoneWhatsapp}</p>
+                <p className="text-[10px] text-slate-600">WA: {branding.phoneWhatsapp}</p>
               )}
             </div>
 
@@ -163,7 +164,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
                     <span className="font-semibold truncate max-w-[170px]">{item.productName}</span>
                     <span className="font-bold tabular-nums">{formatRupiah(item.subtotalItem)}</span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-slate-500">
+                  <div className="flex justify-between text-[10px] text-slate-600">
                     <span>
                       {item.qty} x {formatRupiah(item.unitPrice)}
                     </span>
@@ -224,9 +225,9 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
             </div>
 
             {/* Footer Notice */}
-            <div className="pt-3 text-center space-y-1 text-[10px] text-slate-500 whitespace-pre-line">
+            <div className="pt-3 text-center space-y-1 text-[10px] text-slate-600 whitespace-pre-line">
               <p>{branding.receiptConfig.footerText || 'Terima kasih atas kunjungan Anda!'}</p>
-              <p className="text-[8px] text-slate-400 font-mono mt-1">
+              <p className="text-[8px] text-slate-500 font-mono mt-1">
                 KASA POS • Cloud & Offline Engine
               </p>
             </div>

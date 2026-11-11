@@ -140,7 +140,7 @@ export const StaffManager: React.FC = () => {
                 Kelola Staf, Peran & Hak Akses
               </h2>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Atur hak akses kasir demi mencegah kecurangan dan kebocoran kas usaha.
             </p>
           </div>
@@ -203,7 +203,7 @@ export const StaffManager: React.FC = () => {
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 mt-0.5">
                       PIN: •••••• ({m.pinCode}) • Akses:{' '}
                       {m.role === 'owner' ? 'Semua Modul' : 'Kasir + Kas Laci'}
                     </p>
@@ -226,6 +226,7 @@ export const StaffManager: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => handleOpenEdit(m)}
+                    aria-label={`Edit profil dan PIN ${m.fullName}`}
                     className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
                     title="Edit Profil & PIN"
                   >
@@ -244,12 +245,12 @@ export const StaffManager: React.FC = () => {
               <History className="w-4 h-4 text-slate-500" />
               <span>Log Aktivitas & Audit Keamanan Kasir</span>
             </h3>
-            <span className="text-[11px] text-slate-400">Anti-Curang Otomatis</span>
+            <span className="text-[11px] text-slate-500">Anti-Curang Otomatis</span>
           </div>
 
           <div className="p-4">
             {auditLogs.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-4">
+              <p className="text-xs text-slate-500 text-center py-4">
                 Belum ada rekaman audit log.
               </p>
             ) : (
@@ -269,7 +270,7 @@ export const StaffManager: React.FC = () => {
                       <p className="text-slate-600">{log.description}</p>
                     </div>
 
-                    <span className="text-[11px] text-slate-400 tabular-nums whitespace-nowrap">
+                    <span className="text-[11px] text-slate-500 tabular-nums whitespace-nowrap">
                       {formatDateTime(log.createdAt)}
                     </span>
                   </div>
@@ -282,8 +283,8 @@ export const StaffManager: React.FC = () => {
 
       {/* Add / Edit Member Modal */}
       {isMemberModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="text-base font-bold text-slate-900">
                 {editingMember ? 'Edit Data Staf' : 'Tambah Staf / Kasir Baru'}
@@ -291,7 +292,8 @@ export const StaffManager: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsMemberModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-600 rounded-full"
+                aria-label="Tutup form staf"
+                className="p-1 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -351,7 +353,7 @@ export const StaffManager: React.FC = () => {
                       type="checkbox"
                       checked={canViewDailyRevenue}
                       onChange={(e) => setCanViewDailyRevenue(e.target.checked)}
-                      className="rounded text-blue-600 focus:ring-0"
+                      className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                     />
                     <span>Boleh melihat total omzet shift di layar kasir</span>
                   </label>
@@ -361,7 +363,7 @@ export const StaffManager: React.FC = () => {
                       type="checkbox"
                       checked={canDiscount}
                       onChange={(e) => setCanDiscount(e.target.checked)}
-                      className="rounded text-blue-600 focus:ring-0"
+                      className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                     />
                     <span>Boleh memberi diskon manual tanpa PIN Admin</span>
                   </label>
@@ -371,7 +373,7 @@ export const StaffManager: React.FC = () => {
                       type="checkbox"
                       checked={canVoidOrder}
                       onChange={(e) => setCanVoidOrder(e.target.checked)}
-                      className="rounded text-blue-600 focus:ring-0"
+                      className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                     />
                     <span>Boleh membatalkan transaksi (Void)</span>
                   </label>

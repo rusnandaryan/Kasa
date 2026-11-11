@@ -54,20 +54,21 @@ export const VariantModal: React.FC<VariantModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-2xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-start justify-between pb-3 border-b border-slate-100">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">{product.name}</h3>
-            <p className="text-xs text-slate-500 font-semibold tabular-nums mt-0.5">
+            <p className="text-xs text-slate-600 font-semibold tabular-nums mt-0.5">
               {product.isOpenPrice ? 'Harga Fleksibel (Open Price)' : `Harga Dasar: ${formatRupiah(product.sellingPrice)}`}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+            aria-label="Tutup pilihan varian"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -145,7 +146,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
         {/* Footer */}
         <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
           <div>
-            <span className="text-[11px] text-slate-400 block font-medium">Subtotal Item</span>
+            <span className="text-[11px] text-slate-600 block font-medium">Subtotal Item</span>
             <span className="text-base sm:text-lg font-bold text-slate-900 tabular-nums">
               {formatRupiah(currentTotal)}
             </span>

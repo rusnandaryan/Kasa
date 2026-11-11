@@ -75,20 +75,21 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-2xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full flex flex-col max-h-[95vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-xl max-w-2xl w-full flex flex-col max-h-[95vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header Modal Bar */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div>
             <h3 className="text-base font-bold text-slate-900">Ekspor Laporan Keuangan</h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Cetak PDF resmi berlogo brand toko atau unduh format Excel / CSV
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200"
+            aria-label="Tutup modal ekspor laporan"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -125,7 +126,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
               </div>
 
               <div className="text-right">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 block">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 block">
                   LAPORAN KAS & LABA
                 </span>
                 <span className="text-xs font-bold text-blue-600">{periodLabel}</span>
@@ -135,21 +136,21 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
             {/* 4 Financial Highlight Boxes */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
               <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                <span className="text-[10px] text-slate-500 block uppercase font-bold">Total Omzet</span>
+                <span className="text-[10px] text-slate-600 block uppercase font-bold">Total Omzet</span>
                 <span className="text-sm font-extrabold text-slate-900 tabular-nums">
                   {formatRupiah(totalRevenue)}
                 </span>
               </div>
 
               <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                <span className="text-[10px] text-slate-500 block uppercase font-bold">HPP Produk</span>
+                <span className="text-[10px] text-slate-600 block uppercase font-bold">HPP Produk</span>
                 <span className="text-sm font-extrabold text-slate-700 tabular-nums">
                   {formatRupiah(totalHpp)}
                 </span>
               </div>
 
               <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
-                <span className="text-[10px] text-slate-500 block uppercase font-bold">Pengeluaran Kas</span>
+                <span className="text-[10px] text-slate-600 block uppercase font-bold">Pengeluaran Kas</span>
                 <span className="text-sm font-extrabold text-rose-700 tabular-nums">
                   {formatRupiah(totalExpenses)}
                 </span>
@@ -181,7 +182,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
                   {orders.slice(0, 10).map((o) => (
                     <tr key={o.id}>
                       <td className="p-1.5 font-bold font-mono">{o.invoiceNumber}</td>
-                      <td className="p-1.5 text-slate-500">{formatDateShort(o.createdAt)}</td>
+                      <td className="p-1.5 text-slate-600">{formatDateShort(o.createdAt)}</td>
                       <td className="p-1.5 uppercase font-medium">{o.paymentMethod}</td>
                       <td className="p-1.5 text-right font-bold tabular-nums">
                         {formatRupiah(o.totalAmount)}
@@ -191,14 +192,14 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
                 </tbody>
               </table>
               {orders.length > 10 && (
-                <p className="text-[10px] text-slate-400 italic">
+                <p className="text-[10px] text-slate-500 italic">
                   Menampilkan 10 dari {orders.length} transaksi (unduh CSV untuk riwayat penuh).
                 </p>
               )}
             </div>
 
             {/* Sign-off */}
-            <div className="pt-6 border-t border-slate-200 flex justify-between text-center text-[10px] text-slate-500">
+            <div className="pt-6 border-t border-slate-200 flex justify-between text-center text-[10px] text-slate-600">
               <div>
                 <p>Dicetak pada: {formatDateTime(new Date().toISOString())}</p>
                 <p className="mt-8 font-bold text-slate-700">( Kasir / Staf Toko )</p>

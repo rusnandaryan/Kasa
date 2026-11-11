@@ -105,8 +105,8 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -115,13 +115,14 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">Tutup Shift Kasir</h3>
-              <p className="text-xs text-slate-500">Rekonsiliasi uang fisik laci kasir</p>
+              <p className="text-xs text-slate-600">Rekonsiliasi uang fisik laci kasir</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+            aria-label="Tutup modal rekonsiliasi shift"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -132,11 +133,11 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
           {/* Shift info banner */}
           <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
             <div className="flex justify-between">
-              <span className="text-slate-500">Kasir Bertugas:</span>
+              <span className="text-slate-600">Kasir Bertugas:</span>
               <span className="font-bold text-slate-800">{activeShift.cashierName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Waktu Buka Shift:</span>
+              <span className="text-slate-600">Waktu Buka Shift:</span>
               <span className="tabular-nums text-slate-800">{formatDateTime(activeShift.openedAt)}</span>
             </div>
           </div>
@@ -172,7 +173,7 @@ export const ShiftCloseModal: React.FC<ShiftCloseModalProps> = ({
               Hitung Uang Fisik Aktual di Laci (Rp) *
             </label>
             <div className="relative">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-sm">
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-slate-500 text-sm">
                 Rp
               </span>
               <input

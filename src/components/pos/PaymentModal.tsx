@@ -188,18 +188,19 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">Pembayaran Kasir</h3>
-            <p className="text-xs text-slate-500">Pilih metode pembayaran dan hitung kembalian</p>
+            <p className="text-xs text-slate-600">Pilih metode pembayaran dan hitung kembalian</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+            aria-label="Tutup modal pembayaran"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -207,7 +208,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
         {/* Total Banner */}
         <div className="bg-slate-900 text-white p-4 sm:p-5 text-center">
-          <span className="text-xs text-slate-400 uppercase tracking-widest font-semibold block mb-0.5">
+          <span className="text-xs text-slate-300 uppercase tracking-widest font-semibold block mb-0.5">
             Total Tagihan
           </span>
           <span className="text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight text-white">
@@ -267,7 +268,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                   Uang Tunai Diterima (Rp)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-500">
                     Rp
                   </span>
                   <input
@@ -330,14 +331,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
             <div className="p-4 rounded-2xl border border-blue-200 bg-blue-50/50 flex flex-col items-center text-center space-y-2">
               <div className="w-40 h-40 bg-white p-2.5 rounded-xl border border-slate-200 shadow-xs flex flex-col items-center justify-center">
                 <QrCode className="w-32 h-32 text-slate-800" />
-                <span className="text-[9px] font-bold tracking-widest text-slate-400 mt-1 uppercase">
+                <span className="text-[9px] font-bold tracking-widest text-slate-500 mt-1 uppercase">
                   QRIS STANDAR INDONESIA
                 </span>
               </div>
               <p className="text-xs font-semibold text-slate-800">
                 Arahkan pelanggan scan QRIS dengan GoPay, OVO, Dana, BCA, atau Livin
               </p>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-600">
                 Konfirmasi transaksi berhasil setelah notifikasi pembayaran masuk.
               </p>
             </div>
@@ -349,9 +350,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <p className="font-bold text-slate-800">Rekening Toko:</p>
               <div className="p-2.5 rounded-lg bg-white border border-slate-200">
                 <p className="font-mono font-bold text-slate-900">BCA: 8830-1234-5678</p>
-                <p className="text-slate-500">a.n. {branding.brandName}</p>
+                <p className="text-slate-600">a.n. {branding.brandName}</p>
               </div>
-              <p className="text-slate-400 text-[11px]">
+              <p className="text-slate-500 text-[11px]">
                 Pastikan bukti transfer telah diperiksa kasir sebelum menyelesaikan transaksi.
               </p>
             </div>

@@ -32,7 +32,6 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
       setErrorMsg('');
 
       if (nextPin.length === 6) {
-        // Verify PIN belongs to owner or admin
         const adminMatch = allMembers.find(
           (m) => (m.role === 'owner' || m.role === 'admin') && m.pinCode === nextPin && m.isActive
         );
@@ -54,22 +53,23 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 flex flex-col items-center animate-in zoom-in-95 duration-150 relative">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 flex flex-col items-center animate-in zoom-in-95 duration-150 relative">
         <button
           type="button"
           onClick={onCancel}
-          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+          aria-label="Tutup modal otorisasi supervisor"
+          className="absolute top-4 right-4 p-2 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
+        <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center mb-3">
           <ShieldCheck className="w-6 h-6" />
         </div>
 
         <h3 className="text-base font-bold text-slate-900 text-center">{title}</h3>
-        <p className="text-xs text-slate-500 mt-1 text-center">{description}</p>
+        <p className="text-xs text-slate-600 mt-1 text-center">{description}</p>
 
         {/* PIN Dots */}
         <div className="flex items-center gap-3 my-5">
@@ -108,17 +108,17 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
           <button
             type="button"
             onClick={handleBackspace}
-            className="h-12 rounded-xl text-slate-600 hover:bg-slate-100 active:scale-95 transition-all flex items-center justify-center"
+            aria-label="Hapus satu angka PIN"
+            className="h-12 rounded-xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all flex items-center justify-center"
           >
             <Delete className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-[11px] text-slate-400 mt-4 text-center">
-          Gunakan PIN Admin (Default: <strong className="text-slate-600">123456</strong>)
+        <p className="text-[11px] text-slate-600 mt-4 text-center">
+          Gunakan PIN Admin (Default: <strong className="text-slate-800">123456</strong>)
         </p>
       </div>
     </div>
   );
 };
-

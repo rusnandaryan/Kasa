@@ -8,7 +8,6 @@ import {
   Receipt,
   Download,
   Calendar,
-  Sparkles,
   PieChart,
   ShoppingBag,
   Award,
@@ -141,7 +140,7 @@ export const DashboardOverview: React.FC = () => {
                 Ringkasan Laba & Performa Keuangan
               </h2>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Lihat omzet, beban belanja, dan keuntungan bersih nyata tanpa istilah akuntansi yang rumit.
             </p>
           </div>
@@ -188,7 +187,7 @@ export const DashboardOverview: React.FC = () => {
           {/* Card 1: Total Pemasukan / Omzet */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Total Uang Masuk (Omzet)
               </span>
               <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -198,7 +197,7 @@ export const DashboardOverview: React.FC = () => {
             <p className="text-2xl font-black text-slate-900 tabular-nums">
               {formatRupiah(totalRevenue)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               Dari {orderCount} transaksi {periodLabel.toLowerCase()}
             </p>
           </div>
@@ -206,7 +205,7 @@ export const DashboardOverview: React.FC = () => {
           {/* Card 2: Total Pengeluaran */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Total Uang Keluar (Belanja)
               </span>
               <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -216,7 +215,7 @@ export const DashboardOverview: React.FC = () => {
             <p className="text-2xl font-black text-rose-700 tabular-nums">
               {formatRupiah(totalExpenses)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               Beban operasional, bahan baku & gaji
             </p>
           </div>
@@ -228,7 +227,7 @@ export const DashboardOverview: React.FC = () => {
                 Keuntungan Bersih (Net Profit)
               </span>
               <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4" />
               </div>
             </div>
             <p
@@ -238,7 +237,7 @@ export const DashboardOverview: React.FC = () => {
             >
               {formatRupiah(netProfit)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               Omzet - HPP ({formatRupiah(totalHpp)}) - Pengeluaran
             </p>
           </div>
@@ -246,7 +245,7 @@ export const DashboardOverview: React.FC = () => {
           {/* Card 4: Transaksi & Rata-rata Belanja */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Rata-rata Belanja
               </span>
               <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
@@ -256,7 +255,7 @@ export const DashboardOverview: React.FC = () => {
             <p className="text-2xl font-black text-slate-900 tabular-nums">
               {formatRupiah(avgOrderValue)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               Total {orderCount} nota belanja pelanggan
             </p>
           </div>
@@ -286,7 +285,7 @@ export const DashboardOverview: React.FC = () => {
 
           {/* Visual Ratio Bar */}
           {totalRevenue + totalExpenses === 0 ? (
-            <div className="py-8 text-center text-slate-400 text-xs">
+            <div className="py-8 text-center text-slate-500 text-xs">
               Belum ada pergerakan kas pada periode ini.
             </div>
           ) : (
@@ -327,11 +326,11 @@ export const DashboardOverview: React.FC = () => {
                 <Award className="w-4 h-4 text-amber-500" />
                 <span>Top 5 {branding.customTerminology.itemLabel} Terlaris</span>
               </h3>
-              <span className="text-[11px] text-slate-400">Berdasarkan Jumlah Terjual</span>
+              <span className="text-[11px] text-slate-500">Berdasarkan Jumlah Terjual</span>
             </div>
 
             {topProducts.length === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">
+              <p className="text-xs text-slate-500 py-6 text-center">
                 Belum ada transaksi penjualan pada periode ini.
               </p>
             ) : (
@@ -340,14 +339,14 @@ export const DashboardOverview: React.FC = () => {
                   <div key={idx} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <span
-                        className={`w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] shrink-0 ${
+                        className={`w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] shrink-0 ${
                           idx === 0
                             ? 'bg-amber-100 text-amber-800'
                             : idx === 1
                             ? 'bg-slate-200 text-slate-700'
                             : idx === 2
                             ? 'bg-amber-50 text-amber-700'
-                            : 'bg-slate-100 text-slate-500'
+                            : 'bg-slate-100 text-slate-600'
                         }`}
                       >
                         {idx + 1}
@@ -359,7 +358,7 @@ export const DashboardOverview: React.FC = () => {
                       <span className="font-bold text-slate-900 tabular-nums">
                         {p.qty} terjual
                       </span>
-                      <span className="text-[11px] text-slate-400 ml-2 tabular-nums">
+                      <span className="text-[11px] text-slate-500 ml-2 tabular-nums">
                         ({formatRupiah(p.revenue)})
                       </span>
                     </div>
@@ -376,11 +375,11 @@ export const DashboardOverview: React.FC = () => {
                 <PieChart className="w-4 h-4 text-blue-500" />
                 <span>Rincian Metode Pembayaran</span>
               </h3>
-              <span className="text-[11px] text-slate-400">{periodLabel}</span>
+              <span className="text-[11px] text-slate-500">{periodLabel}</span>
             </div>
 
             {totalRevenue === 0 ? (
-              <p className="text-xs text-slate-400 py-6 text-center">
+              <p className="text-xs text-slate-500 py-6 text-center">
                 Belum ada transaksi pada periode ini.
               </p>
             ) : (

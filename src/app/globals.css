@@ -34,6 +34,29 @@ button, input, select, textarea {
   touch-action: manipulation;
 }
 
+/* Interactive cursor affordances (R-39) */
+button,
+a,
+select,
+summary,
+input[type="checkbox"],
+input[type="radio"],
+label[for] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* Accessible focus ring indicators (R-32) */
+:focus-visible {
+  outline: 2px solid var(--brand-primary, #2563EB);
+  outline-offset: 2px;
+}
+
 /* Scrollbar polish */
 ::-webkit-scrollbar {
   width: 6px;
@@ -43,9 +66,9 @@ button, input, select, textarea {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #94a3b8;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #64748b;
 }

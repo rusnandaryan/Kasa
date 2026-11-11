@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import {
-  Sparkles,
   ArrowRight,
   ArrowLeft,
   Check,
@@ -11,6 +10,7 @@ import {
   Layers,
   Lock,
   X,
+  CheckCircle2,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 import { BusinessType } from '@/core/types';
@@ -66,8 +66,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Progress header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
               <h3 className="text-sm font-bold text-slate-900">
                 Setup Usaha Kasa (Siap Jualan)
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-600">
                 {step === 1 && 'Langkah 1: Tentukan Jenis Usaha Anda'}
                 {step === 2 && 'Langkah 2: Berikan Identitas Brand Anda'}
                 {step === 3 && 'Langkah 3: Katalog Contoh Menu Otomatis'}
@@ -90,7 +90,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200"
+            aria-label="Tutup panduan setup awal"
+            className="p-1.5 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-200"
           >
             <X className="w-5 h-5" />
           </button>
@@ -103,7 +104,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
             <div className="space-y-4">
               <div className="text-center space-y-1">
                 <h4 className="text-base font-bold text-slate-900">Apa bidang usaha UMKM Anda?</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   KASA secara pintar akan menyesuaikan istilah aplikasi, fitur kasir, dan struktur katalog.
                 </p>
               </div>
@@ -142,7 +143,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
                     <span className="text-3xl mb-2">{item.emoji}</span>
                     <div>
                       <h5 className="font-bold text-xs text-slate-900">{item.title}</h5>
-                      <p className="text-[10px] text-slate-500 mt-0.5 leading-snug">{item.desc}</p>
+                      <p className="text-[10px] text-slate-600 mt-0.5 leading-snug">{item.desc}</p>
                     </div>
                   </button>
                 ))}
@@ -155,7 +156,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
             <div className="space-y-4">
               <div className="text-center space-y-1">
                 <h4 className="text-base font-bold text-slate-900">Beri Nama & Warna Brand Anda</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   Aplikasi kasir ini 100% milik toko Anda sendiri.
                 </p>
               </div>
@@ -210,7 +211,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
           {step === 3 && (
             <div className="space-y-3 text-center">
               <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
-                <Sparkles className="w-7 h-7" />
+                <Check className="w-7 h-7 stroke-[3]" />
               </div>
               <h4 className="text-base font-bold text-slate-900">
                 Contoh Menu & Kategori Sudah Siap!
@@ -226,7 +227,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
             <div className="space-y-4">
               <div className="text-center space-y-1">
                 <h4 className="text-base font-bold text-slate-900">Setel 6-Digit PIN Kasir</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   Untuk pergantian shift cepat dan pengamanan transaksi void/hapus.
                 </p>
               </div>

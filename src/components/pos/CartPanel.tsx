@@ -74,7 +74,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             <h3 className="font-bold text-slate-900 text-sm sm:text-base">
               Pesanan Aktif
             </h3>
-            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-blue-100 text-blue-700">
+            <span className="text-xs px-2 py-0.5 rounded-md font-bold bg-blue-100 text-blue-700">
               {cartItems.reduce((acc, item) => acc + item.qty, 0)} item
             </span>
           </div>
@@ -95,13 +95,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
         <div className="grid grid-cols-2 gap-2">
           {/* Order Identifier (Meja / Antrean / Plat) */}
           <div className="relative">
-            <Hash className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Hash className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={orderIdentifier}
               onChange={(e) => setOrderIdentifier(e.target.value)}
               placeholder={branding.customTerminology.orderIdentifier || 'Nomor Meja'}
-              className="w-full h-9 pl-8 pr-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-blue-500 placeholder:text-slate-400 placeholder:font-normal"
+              className="w-full h-9 pl-8 pr-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500 placeholder:font-normal"
             />
           </div>
 
@@ -116,10 +116,10 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             }`}
           >
             <span className="truncate flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-slate-400" />
+              <User className="w-3.5 h-3.5 text-slate-500" />
               <span className="truncate">{customerName || 'Nama Pelanggan'}</span>
             </span>
-            <span className="text-[10px] text-slate-400">Edit</span>
+            <span className="text-[10px] text-slate-500 font-medium">Edit</span>
           </button>
         </div>
 
@@ -131,14 +131,14 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
               value={customerName}
               onChange={(e) => setCustomerInfo(e.target.value, customerPhone)}
               placeholder="Nama Lengkap Pelanggan"
-              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden"
+              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden placeholder:text-slate-500"
             />
             <input
               type="tel"
               value={customerPhone}
               onChange={(e) => setCustomerInfo(customerName, e.target.value)}
               placeholder="Nomor WhatsApp (misal: 081234567890)"
-              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden"
+              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden placeholder:text-slate-500"
             />
           </div>
         )}
@@ -147,12 +147,12 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
       {/* Cart Items List */}
       <div className="flex-1 p-3 sm:p-4 overflow-y-auto divide-y divide-slate-100">
         {cartItems.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
-            <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-300">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
+            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
               <Receipt className="w-7 h-7" />
             </div>
             <p className="text-sm font-bold text-slate-700">Keranjang Masih Kosong</p>
-            <p className="text-xs text-slate-400 mt-1 max-w-[200px]">
+            <p className="text-xs text-slate-500 mt-1 max-w-[200px]">
               Ketuk {branding.customTerminology.itemLabel.toLowerCase()} di sebelah kiri untuk menambahkan pesanan.
             </p>
           </div>
@@ -191,7 +191,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
                 <button
                   type="button"
                   onClick={() => removeCartItem(item.id)}
-                  className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors"
+                  aria-label={`Hapus ${item.name} dari keranjang`}
+                  className="p-1 text-slate-500 hover:text-rose-600 rounded-md transition-colors"
                   title="Hapus item"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -201,6 +202,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
                   <button
                     type="button"
                     onClick={() => updateCartItemQty(item.id, item.qty - (item.allowDecimalQty ? 0.5 : 1))}
+                    aria-label={`Kurangi jumlah ${item.name}`}
                     className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
                   >
                     <Minus className="w-3.5 h-3.5" />
@@ -213,6 +215,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
                   <button
                     type="button"
                     onClick={() => updateCartItemQty(item.id, item.qty + (item.allowDecimalQty ? 0.5 : 1))}
+                    aria-label={`Tambah jumlah ${item.name}`}
                     className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -300,7 +303,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
 
           {/* Subtotal, Discount & Taxes summary */}
           <div className="space-y-1 text-xs">
-            <div className="flex items-center justify-between text-slate-500">
+            <div className="flex items-center justify-between text-slate-600">
               <span>Subtotal</span>
               <span className="tabular-nums font-semibold text-slate-800">{formatRupiah(subtotal)}</span>
             </div>
@@ -313,13 +316,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             )}
 
             {branding.taxPercentage > 0 && (
-              <div className="flex items-center justify-between text-slate-500">
+              <div className="flex items-center justify-between text-slate-600">
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={applyTax}
                     onChange={(e) => setApplyTax(e.target.checked)}
-                    className="rounded text-blue-600 focus:ring-0"
+                    className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                   />
                   <span>Pajak PB1 ({branding.taxPercentage}%)</span>
                 </label>
@@ -328,13 +331,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             )}
 
             {branding.serviceChargePct > 0 && (
-              <div className="flex items-center justify-between text-slate-500">
+              <div className="flex items-center justify-between text-slate-600">
                 <label className="flex items-center gap-1.5 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={applyService}
                     onChange={(e) => setApplyService(e.target.checked)}
-                    className="rounded text-blue-600 focus:ring-0"
+                    className="rounded text-blue-600 focus:ring-2 focus:ring-blue-500 focus:outline-hidden"
                   />
                   <span>Biaya Layanan ({branding.serviceChargePct}%)</span>
                 </label>
@@ -362,8 +365,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
               </span>
             </div>
 
-            <span className="px-4 py-2 rounded-xl bg-white/20 text-xs sm:text-sm font-bold backdrop-blur-xs">
-              Bayar [F8] →
+            <span className="px-4 py-2 rounded-xl bg-white/20 text-xs sm:text-sm font-bold">
+              Bayar [F8]
             </span>
           </button>
         </div>

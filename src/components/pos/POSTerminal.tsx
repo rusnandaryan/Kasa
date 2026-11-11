@@ -79,7 +79,7 @@ export const POSTerminal: React.FC = () => {
               onClick={() => setMobileView('catalog')}
               className="text-xs font-bold text-blue-600 hover:underline"
             >
-              ← Kembali Tambah Menu Lain
+              Kembali Tambah Menu Lain
             </button>
           </div>
         )}

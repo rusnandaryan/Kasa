@@ -9,7 +9,7 @@ import {
   UserCheck,
   PlusCircle,
   Clock,
-  Sparkles,
+  HelpCircle,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 import { formatRupiah } from '@/core/formatters';
@@ -48,13 +48,12 @@ export const Header: React.FC<HeaderProps> = ({
               {branding.logoUrl ? (
                 <Image
                   src={branding.logoUrl}
-                  alt={branding.brandName}
+                  alt={`Logo ${branding.brandName}`}
                   width={44}
                   height={44}
                   className="w-full h-full object-cover"
                   unoptimized
                   onError={(e) => {
-                    // Fallback to initial
                     (e.target as HTMLElement).style.display = 'none';
                   }}
                 />
@@ -71,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {branding.brandName}
                 </h1>
                 <span
-                  className="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                  className="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold capitalize"
                   style={{
                     backgroundColor: 'var(--brand-primary-light, #EFF6FF)',
                     color: 'var(--brand-primary, #2563EB)',
@@ -83,10 +82,10 @@ export const Header: React.FC<HeaderProps> = ({
                     ? '🛒 Retail / Toko'
                     : branding.businessType === 'service'
                     ? '✂️ Jasa / Layanan'
-                    : '✨ Kustom'}
+                    : 'Kustom'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 truncate hidden sm:block">
+              <p className="text-xs text-slate-600 truncate hidden sm:block">
                 {branding.tagline || 'Sistem Kasir & Pembukuan UMKM'}
               </p>
             </div>
@@ -98,7 +97,7 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={onOpenHoldModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition-colors shadow-2xs"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors shadow-2xs"
               >
                 <Clock className="w-3.5 h-3.5" />
                 <span>Pesanan Diparkir ({heldOrders.length})</span>
@@ -109,21 +108,21 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={onOpenQuickExpense}
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors"
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition-colors"
               title="Catat pengeluaran kas laci cepat"
             >
               <PlusCircle className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Kas Keluar</span>
             </button>
 
-            {/* Setup Wizard Button */}
+            {/* Setup Wizard Button (No AI sparkle slop) */}
             <button
               type="button"
               onClick={onOpenOnboarding}
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               title="Buka panduan setup awal"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
               <span>Panduan Setup</span>
             </button>
           </div>
@@ -132,10 +131,10 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Online / Offline status */}
             <div
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium ${
                 isOnline
-                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                  : 'bg-amber-50 text-amber-800 border border-amber-300'
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-900 border border-amber-300'
               }`}
               title={
                 isOnline
@@ -145,12 +144,12 @@ export const Header: React.FC<HeaderProps> = ({
             >
               {isOnline ? (
                 <>
-                  <Wifi className="w-3.5 h-3.5" />
+                  <Wifi className="w-3.5 h-3.5 text-emerald-700" />
                   <span className="hidden xl:inline">Online</span>
                 </>
               ) : (
                 <>
-                  <WifiOff className="w-3.5 h-3.5 text-amber-600 animate-pulse" />
+                  <WifiOff className="w-3.5 h-3.5 text-amber-700" />
                   <span className="text-[11px]">Offline</span>
                 </>
               )}
@@ -161,17 +160,19 @@ export const Header: React.FC<HeaderProps> = ({
               <button
                 type="button"
                 onClick={() => setShowMemberDropdown(!showMemberDropdown)}
+                aria-label="Pilih akun kasir atau staf"
+                aria-expanded={showMemberDropdown}
                 className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-xs font-medium text-slate-700 transition-colors"
               >
-                <UserCheck className="w-4 h-4 text-slate-500" />
+                <UserCheck className="w-4 h-4 text-slate-600" />
                 <span className="font-semibold text-slate-900 max-w-[100px] sm:max-w-[130px] truncate">
                   {activeMember.fullName.split(' ')[0]}
                 </span>
                 <span
-                  className={`px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider ${
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                     activeMember.role === 'owner' || activeMember.role === 'admin'
-                      ? 'bg-purple-100 text-purple-800'
-                      : 'bg-blue-100 text-blue-800'
+                      ? 'bg-purple-100 text-purple-900'
+                      : 'bg-blue-100 text-blue-900'
                   }`}
                 >
                   {activeMember.role}
@@ -181,12 +182,12 @@ export const Header: React.FC<HeaderProps> = ({
               {showMemberDropdown && (
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
                   <div className="px-3 py-1.5 border-b border-slate-100">
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                    <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">
                       Ganti Akun Kasir / Staf
                     </p>
                     {activeShift && (
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Modal Laci: <span className="font-bold text-slate-800 tabular-nums">{formatRupiah(activeShift.openingCash)}</span>
+                      <p className="text-xs text-slate-600 mt-0.5">
+                        Modal Laci: <span className="font-bold text-slate-900 tabular-nums">{formatRupiah(activeShift.openingCash)}</span>
                       </p>
                     )}
                   </div>
@@ -201,14 +202,14 @@ export const Header: React.FC<HeaderProps> = ({
                           setShowMemberDropdown(false);
                         }}
                         className={`w-full text-left px-3 py-2 flex items-center justify-between text-xs hover:bg-slate-50 transition-colors ${
-                          member.id === activeMember.id ? 'bg-blue-50 font-semibold text-blue-700' : 'text-slate-700'
+                          member.id === activeMember.id ? 'bg-blue-50 font-semibold text-blue-800' : 'text-slate-800'
                         }`}
                       >
                         <div className="truncate pr-2">
-                          <p className="truncate">{member.fullName}</p>
-                          <p className="text-[10px] text-slate-400 capitalize">PIN: ••••••</p>
+                          <p className="truncate font-semibold">{member.fullName}</p>
+                          <p className="text-[10px] text-slate-500 capitalize">PIN: terproteksi</p>
                         </div>
-                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                        <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700">
                           {member.role}
                         </span>
                       </button>
@@ -222,9 +223,9 @@ export const Header: React.FC<HeaderProps> = ({
                         setShowMemberDropdown(false);
                         lockApp();
                       }}
-                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors"
+                      className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-slate-800 hover:bg-slate-100 transition-colors"
                     >
-                      <Lock className="w-3.5 h-3.5 text-slate-500" />
+                      <Lock className="w-3.5 h-3.5 text-slate-600" />
                       <span>Kunci Layar (PIN Lock)</span>
                     </button>
                   </div>
@@ -236,7 +237,8 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               type="button"
               onClick={lockApp}
-              className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              aria-label="Kunci Layar Kasir"
+              className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
               title="Kunci Layar Kasir"
             >
               <Lock className="w-4 h-4" />
@@ -247,4 +249,3 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-

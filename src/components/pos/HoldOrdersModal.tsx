@@ -16,8 +16,8 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-3xl shadow-2xl max-w-md w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-5 sm:p-6 space-y-4 animate-in zoom-in-95 duration-150">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-amber-600" />
@@ -28,7 +28,8 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-600 rounded-full"
+            aria-label="Tutup modal pesanan diparkir"
+            className="p-1 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
           </button>
@@ -36,7 +37,7 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
 
         <div className="space-y-2.5 max-h-[60vh] overflow-y-auto">
           {heldOrders.length === 0 ? (
-            <p className="text-xs text-slate-400 text-center py-8">
+            <p className="text-xs text-slate-500 text-center py-8">
               Tidak ada pesanan yang sedang diparkir.
             </p>
           ) : (
@@ -54,7 +55,7 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
                       {h.orderIdentifier}
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-600">
                     {h.items.length} item • Diparkir pukul {formatTimeOnly(h.heldAt)}
                   </p>
                   <p className="text-xs font-extrabold text-slate-900 tabular-nums">
@@ -78,7 +79,8 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
                   <button
                     type="button"
                     onClick={() => deleteHeldOrder(h.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                    aria-label="Batalkan pesanan diparkir"
+                    className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-rose-50"
                     title="Batalkan Pesanan Ini"
                   >
                     <Trash2 className="w-4 h-4" />

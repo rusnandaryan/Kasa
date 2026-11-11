@@ -80,7 +80,7 @@ export const CashflowManager: React.FC = () => {
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
               Buku Kas & Arus Kas (Uang Masuk & Keluar)
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-600 mt-0.5">
               Pantau seluruh aliran rupiah usaha secara transparan tanpa istilah akuntansi yang rumit.
             </p>
           </div>
@@ -131,7 +131,7 @@ export const CashflowManager: React.FC = () => {
           {/* Income Card */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Total Uang Masuk
               </span>
               <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
@@ -141,13 +141,13 @@ export const CashflowManager: React.FC = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-emerald-700 tabular-nums">
               {formatRupiah(totalIncome)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">Penjualan kasir & modal masuk</p>
+            <p className="text-[11px] text-slate-500 mt-1">Penjualan kasir & modal masuk</p>
           </div>
 
           {/* Expense Card */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Total Uang Keluar
               </span>
               <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -157,13 +157,13 @@ export const CashflowManager: React.FC = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-rose-700 tabular-nums">
               {formatRupiah(totalExpense)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">Belanja bahan, operasional & gaji</p>
+            <p className="text-[11px] text-slate-500 mt-1">Belanja bahan, operasional & gaji</p>
           </div>
 
           {/* Net Cashflow Card */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
                 Arus Kas Bersih (Selisih)
               </span>
               <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -177,7 +177,7 @@ export const CashflowManager: React.FC = () => {
             >
               {formatRupiah(netCashflow)}
             </p>
-            <p className="text-[11px] text-slate-400 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               {netCashflow >= 0 ? 'Surplus kas terkumpul' : 'Defisit arus kas'}
             </p>
           </div>
@@ -188,7 +188,7 @@ export const CashflowManager: React.FC = () => {
           {/* Filters Bar */}
           <div className="p-3 sm:p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-500 mr-1">Tipe:</span>
+              <span className="text-xs font-bold text-slate-600 mr-1">Tipe:</span>
               {[
                 { id: 'all', label: 'Semua' },
                 { id: 'income', label: 'Masuk (+)' },
@@ -210,7 +210,7 @@ export const CashflowManager: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-500 mr-1">Sumber:</span>
+              <span className="text-xs font-bold text-slate-600 mr-1">Sumber:</span>
               {[
                 { id: 'all', label: 'Semua' },
                 { id: 'cash_drawer', label: 'Kas Laci' },
@@ -235,7 +235,7 @@ export const CashflowManager: React.FC = () => {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Tanggal & Waktu</th>
                   <th className="py-3 px-4">Kategori & Keterangan</th>
@@ -249,8 +249,38 @@ export const CashflowManager: React.FC = () => {
               <tbody className="divide-y divide-slate-100">
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-8 text-slate-400">
-                      Belum ada catatan kas pada filter ini.
+                    <td colSpan={7} className="text-center py-12 px-4">
+                      <div className="max-w-xs mx-auto flex flex-col items-center">
+                        <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                          <FileText className="w-6 h-6" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-700">Belum Ada Catatan Kas</p>
+                        <p className="text-xs text-slate-500 mt-1 mb-4">
+                          Belum ada transaksi uang masuk atau uang keluar yang dicatat pada filter ini.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEntryModalType('income');
+                              setIsEntryModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
+                          >
+                            + Catat Uang Masuk
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEntryModalType('expense');
+                              setIsEntryModalOpen(true);
+                            }}
+                            className="px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors"
+                          >
+                            - Catat Uang Keluar
+                          </button>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 ) : (
@@ -286,7 +316,7 @@ export const CashflowManager: React.FC = () => {
                           </span>
                         </td>
 
-                        <td className="py-3 px-4 text-slate-500 text-[11px]">
+                        <td className="py-3 px-4 text-slate-600 text-[11px]">
                           {e.creatorName}
                         </td>
 
@@ -303,13 +333,14 @@ export const CashflowManager: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setPreviewPhotoUrl(e.receiptPhotoUrl || null)}
+                              aria-label="Lihat foto bukti nota"
                               className="p-1 rounded-md text-blue-600 hover:bg-blue-50"
                               title="Lihat Foto Bukti Nota"
                             >
                               <ImageIcon className="w-4 h-4" />
                             </button>
                           ) : (
-                            <span className="text-slate-300">-</span>
+                            <span className="text-slate-400">-</span>
                           )}
                         </td>
 
@@ -317,7 +348,8 @@ export const CashflowManager: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleDeleteEntry(e)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                            aria-label={`Hapus catatan kas ${e.category}`}
+                            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                             title="Hapus Catatan"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -352,7 +384,7 @@ export const CashflowManager: React.FC = () => {
       {previewPhotoUrl && (
         <div
           onClick={() => setPreviewPhotoUrl(null)}
-          className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4 cursor-pointer"
         >
           <div className="max-w-md w-full bg-white rounded-2xl overflow-hidden p-2 shadow-2xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -361,7 +393,7 @@ export const CashflowManager: React.FC = () => {
               alt="Bukti Nota Kas"
               className="w-full h-auto max-h-[80vh] object-contain rounded-xl"
             />
-            <p className="text-center text-xs text-slate-500 py-2">
+            <p className="text-center text-xs text-slate-600 py-2">
               Klik di mana saja untuk menutup pratinjau nota
             </p>
           </div>
