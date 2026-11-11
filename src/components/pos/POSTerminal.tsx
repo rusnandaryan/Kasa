@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProductGrid } from './ProductGrid';
 import { CartPanel } from './CartPanel';
 import { PaymentModal } from './PaymentModal';
@@ -17,6 +17,18 @@ export const POSTerminal: React.FC = () => {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [mobileView, setMobileView] = useState<'catalog' | 'cart'>('catalog');
 
+  // Physical Keyboard Accelerators (F8 for Quick Checkout)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'F8' && cartItems.length > 0 && !isPaymentOpen && !isReceiptOpen) {
+        e.preventDefault();
+        setIsPaymentOpen(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [cartItems.length, isPaymentOpen, isReceiptOpen]);
+
   const handlePaymentSuccess = (order: Order) => {
     setIsPaymentOpen(false);
     setCompletedOrder(order);
@@ -28,6 +40,29 @@ export const POSTerminal: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-8rem)] min-h-[500px] overflow-hidden relative">
+      {/* Keyboard Shortcut Accelerator Bar (Desktop / Tablet) */}
+      <div className="hidden md:flex items-center justify-between px-4 py-1 bg-slate-100 border-b border-slate-200 text-[11px] text-slate-600 shrink-0">
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-slate-700">Pintasan Terminal:</span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">F2</kbd>
+            <span>Cari Menu</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">F8</kbd>
+            <span>Bayar Cepat</span>
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">Esc</kbd>
+            <span>Tutup Dialog</span>
+          </span>
+        </div>
+        <div className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Terminal Siap</span>
+        </div>
+      </div>
+
       {/* Desktop / Tablet Split Screen (65% Products / 35% Cart) */}
       <div className="flex-1 hidden md:grid md:grid-cols-12 h-full overflow-hidden">
         <div className="md:col-span-7 lg:col-span-8 h-full overflow-hidden">

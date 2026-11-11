@@ -44,6 +44,7 @@ export const Navigation: React.FC = () => {
               <button
                 key={item.id}
                 type="button"
+                aria-disabled={isRestricted}
                 onClick={() => {
                   if (isRestricted) {
                     alert('Hanya Owner/Admin yang memiliki akses ke modul ini.');

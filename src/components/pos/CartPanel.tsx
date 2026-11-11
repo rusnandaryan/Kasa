@@ -192,23 +192,23 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
                   type="button"
                   onClick={() => removeCartItem(item.id)}
                   aria-label={`Hapus ${item.name} dari keranjang`}
-                  className="p-1 text-slate-500 hover:text-rose-600 rounded-md transition-colors"
+                  className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
                   title="Hapus item"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
 
-                <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden bg-white shadow-2xs">
+                <div className="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
                   <button
                     type="button"
                     onClick={() => updateCartItemQty(item.id, item.qty - (item.allowDecimalQty ? 0.5 : 1))}
                     aria-label={`Kurangi jumlah ${item.name}`}
-                    className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
                   >
-                    <Minus className="w-3.5 h-3.5" />
+                    <Minus className="w-4 h-4" />
                   </button>
 
-                  <span className="w-12 text-center text-xs font-bold text-slate-900 tabular-nums">
+                  <span className="w-12 text-center text-sm font-bold text-slate-900 tabular-nums">
                     {item.qty}
                   </span>
 
@@ -216,9 +216,9 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
                     type="button"
                     onClick={() => updateCartItemQty(item.id, item.qty + (item.allowDecimalQty ? 0.5 : 1))}
                     aria-label={`Tambah jumlah ${item.name}`}
-                    className="w-8 h-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                   </button>
                 </div>
               </div>

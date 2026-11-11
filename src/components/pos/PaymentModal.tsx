@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   X,
   Banknote,
@@ -86,6 +86,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
     return list.slice(0, 5);
   }, [grandTotal]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -280,6 +291,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-lg font-extrabold tabular-nums text-slate-900"
                   />
                 </div>
+                {cashReceived > 0 && (
+                  <p className="text-xs font-bold text-blue-700 mt-1.5 tabular-nums">
+                    Terbaca: {formatRupiah(cashReceived)}
+                  </p>
+                )}
               </div>
 
               {/* Quick Cash Buttons */}

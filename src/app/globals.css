@@ -57,6 +57,16 @@ select:disabled {
   outline-offset: 2px;
 }
 
+/* Themed text selection and caret (Impeccable craft floor) */
+::selection {
+  background-color: var(--brand-primary-light, #EFF6FF);
+  color: var(--brand-primary-dark, #1D4ED8);
+}
+
+input, textarea {
+  caret-color: var(--brand-primary, #2563EB);
+}
+
 /* Scrollbar polish */
 ::-webkit-scrollbar {
   width: 6px;
