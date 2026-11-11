@@ -15,6 +15,7 @@ import { SettingsBranding } from '@/components/settings/SettingsBranding';
 import { CashflowEntryModal } from '@/components/cashflow/CashflowEntryModal';
 import { HoldOrdersModal } from '@/components/pos/HoldOrdersModal';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
+import { ShortcutModal } from '@/components/pos/ShortcutModal';
 
 export default function Home() {
   const {
@@ -28,6 +29,7 @@ export default function Home() {
   const [isQuickExpenseOpen, setIsQuickExpenseOpen] = useState(false);
   const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
+  const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
   useEffect(() => {
     // 1. Initialize IndexedDB & Seed data if empty
@@ -42,9 +44,27 @@ export default function Home() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
+    // 3. Global hotkey '?' for keyboard shortcuts cheat sheet
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.isContentEditable
+      ) {
+        return;
+      }
+      if (e.key === '?') {
+        e.preventDefault();
+        setIsShortcutModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [initStore, setOnlineStatus]);
 
@@ -68,6 +88,7 @@ export default function Home() {
         onOpenQuickExpense={() => setIsQuickExpenseOpen(true)}
         onOpenHoldModal={() => setIsHoldModalOpen(true)}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        onOpenShortcuts={() => setIsShortcutModalOpen(true)}
       />
 
       {/* Navigation Tab Bar */}
@@ -103,6 +124,12 @@ export default function Home() {
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
+      />
+
+      {/* Keyboard Shortcuts Cheat Sheet Modal (REC-02) */}
+      <ShortcutModal
+        isOpen={isShortcutModalOpen}
+        onClose={() => setIsShortcutModalOpen(false)}
       />
     </div>
   );

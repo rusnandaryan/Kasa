@@ -10,6 +10,7 @@ import {
   PlusCircle,
   Clock,
   HelpCircle,
+  Keyboard,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 import { formatRupiah } from '@/core/formatters';
@@ -18,12 +19,14 @@ interface HeaderProps {
   onOpenQuickExpense: () => void;
   onOpenHoldModal: () => void;
   onOpenOnboarding: () => void;
+  onOpenShortcuts?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenQuickExpense,
   onOpenHoldModal,
   onOpenOnboarding,
+  onOpenShortcuts,
 }) => {
   const {
     branding,
@@ -125,6 +128,20 @@ export const Header: React.FC<HeaderProps> = ({
               <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
               <span>Panduan Setup</span>
             </button>
+
+            {/* Shortcut Cheatsheet Button (Finding UX-03 / REC-02) */}
+            {onOpenShortcuts && (
+              <button
+                type="button"
+                onClick={onOpenShortcuts}
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                title="Buka panduan tombol pintas keyboard [?]"
+              >
+                <Keyboard className="w-3.5 h-3.5 text-slate-600" />
+                <span className="hidden md:inline">Tombol Pintas</span>
+                <kbd className="px-1 py-0.2 rounded bg-slate-200/80 font-mono text-[10px] text-slate-700 font-bold">?</kbd>
+              </button>
+            )}
           </div>
 
           {/* Right Controls: Connectivity, Member & PIN Lock */}

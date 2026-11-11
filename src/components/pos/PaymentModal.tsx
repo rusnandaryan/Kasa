@@ -15,6 +15,7 @@ import { PaymentMethod, Order } from '@/core/types';
 import { db } from '@/core/db';
 import { useAppStore } from '@/core/store';
 import { formatRupiah, generateInvoiceNumber } from '@/core/formatters';
+import { sound } from '@/core/sound';
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -189,6 +190,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       }
 
       clearCart();
+      sound.playSuccess();
       setIsSubmitting(false);
       onPaymentSuccess(newOrder);
     } catch (err) {

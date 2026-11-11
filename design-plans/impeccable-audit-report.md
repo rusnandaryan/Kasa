@@ -63,3 +63,4 @@ Evaluated At: 2026-11-11
 - **Category:** Theming & Polish
 - **Impact:** Default browser selection color and caret failed to reflect brand palette.
 - **Resolution:** Added `::selection` (tinted with `--brand-primary-light` and `--brand-primary-dark`) and `input, textarea { caret-color: var(--brand-primary); }`.
+

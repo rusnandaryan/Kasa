@@ -56,6 +56,10 @@ export const POSTerminal: React.FC = () => {
             <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">Esc</kbd>
             <span>Tutup Dialog</span>
           </span>
+          <span className="inline-flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">?</kbd>
+            <span>Bantuan [?]</span>
+          </span>
         </div>
         <div className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>

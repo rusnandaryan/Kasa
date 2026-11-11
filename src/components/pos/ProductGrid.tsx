@@ -7,6 +7,7 @@ import { db } from '@/core/db';
 import { useAppStore } from '@/core/store';
 import { formatRupiah } from '@/core/formatters';
 import { VariantModal } from './VariantModal';
+import { sound } from '@/core/sound';
 
 export const ProductGrid: React.FC = () => {
   const { branding, addToCart } = useAppStore();
@@ -67,6 +68,7 @@ export const ProductGrid: React.FC = () => {
       setSelectedProductForModal(product);
     } else {
       addToCart(product);
+      sound.playBlip();
     }
   };
 
@@ -76,6 +78,7 @@ export const ProductGrid: React.FC = () => {
     const match = products.find((p) => p.skuBarcode === barcodeInput);
     if (match) {
       handleProductClick(match);
+      sound.playBlip();
       setBarcodeInput('');
       setIsBarcodeOpen(false);
     } else {
@@ -280,6 +283,7 @@ export const ProductGrid: React.FC = () => {
         onConfirm={(selectedVariants, notes, customPrice) => {
           if (selectedProductForModal) {
             addToCart(selectedProductForModal, selectedVariants, notes, customPrice);
+            sound.playBlip();
           }
         }}
       />
