@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import {
   Wifi,
   WifiOff,
   Lock,
   UserCheck,
-  PlusCircle,
-  Clock,
   HelpCircle,
   Keyboard,
   LogOut,
@@ -19,15 +17,11 @@ import { ROLE_LABELS } from '@/core/auth';
 import { formatRupiah } from '@/core/formatters';
 
 interface HeaderProps {
-  onOpenQuickExpense: () => void;
-  onOpenHoldModal: () => void;
   onOpenOnboarding: () => void;
   onOpenShortcuts?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onOpenQuickExpense,
-  onOpenHoldModal,
   onOpenOnboarding,
   onOpenShortcuts,
 }) => {
@@ -37,11 +31,34 @@ export const Header: React.FC<HeaderProps> = ({
     lockApp,
     logout,
     isOnline,
-    heldOrders,
     activeShift,
   } = useAppStore();
 
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
+  const memberMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showMemberDropdown) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (memberMenuRef.current && !memberMenuRef.current.contains(e.target as Node)) {
+        setShowMemberDropdown(false);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowMemberDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('keydown', handleEscape);
+    };
+  }, [showMemberDropdown]);
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
@@ -70,62 +87,23 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h1 className="font-bold text-slate-900 text-base sm:text-lg tracking-tight truncate leading-tight">
-                  {branding.brandName}
-                </h1>
-                <span
-                  className="hidden md:inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold capitalize"
-                  style={{
-                    backgroundColor: 'var(--brand-primary-light, #EFF6FF)',
-                    color: 'var(--brand-primary, #2563EB)',
-                  }}
-                >
-                  {branding.businessType === 'fnb'
-                    ? '☕ Kuliner / F&B'
-                    : branding.businessType === 'retail'
-                    ? '🛒 Retail / Toko'
-                    : branding.businessType === 'service'
-                    ? '✂️ Jasa / Layanan'
-                    : 'Kustom'}
-                </span>
-              </div>
+              <h1 className="font-bold text-slate-900 text-base sm:text-lg tracking-tight truncate leading-tight">
+                {branding.brandName}
+              </h1>
               <p className="text-xs text-slate-600 truncate hidden sm:block">
-                {branding.tagline || 'Sistem Kasir & Pembukuan UMKM'}
+                {branding.address || 'Alamat toko belum diatur'}
               </p>
             </div>
           </div>
 
-          {/* Center Actions: Hold Orders & Shift status */}
+          {/* Center Actions: Owner Setup & Shortcuts */}
           <div className="flex items-center gap-2">
-            {heldOrders.length > 0 && (
-              <button
-                type="button"
-                onClick={onOpenHoldModal}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-colors shadow-2xs"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                <span>Pesanan Aktif ({heldOrders.length})</span>
-              </button>
-            )}
-
-            {/* Quick Expense Shortcut */}
-            <button
-              type="button"
-              onClick={onOpenQuickExpense}
-              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100 transition-colors"
-              title="Catat pengeluaran kas laci cepat"
-            >
-              <PlusCircle className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Kas Keluar</span>
-            </button>
-
             {/* Setup Wizard Button (Owner Only) */}
             {activeMember.role === 'owner' && (
               <button
                 type="button"
                 onClick={onOpenOnboarding}
-                className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 title="Buka panduan setup awal"
               >
                 <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
@@ -177,30 +155,32 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
 
             {/* Active Member Account Menu */}
-            <div className="relative">
+            <div ref={memberMenuRef} className="relative">
               <button
                 type="button"
                 onClick={() => setShowMemberDropdown(!showMemberDropdown)}
                 aria-label="Menu akun pengguna aktif"
                 aria-expanded={showMemberDropdown}
-                className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-xs font-medium text-slate-700 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-left transition-colors"
               >
-                <UserCheck className="w-4 h-4 text-slate-600" />
-                <span className="font-semibold text-slate-900 max-w-[100px] sm:max-w-[130px] truncate">
-                  {activeMember.fullName.split(' ')[0]}
-                </span>
-                <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                    activeMember.role === 'owner'
-                      ? 'bg-slate-900 text-white'
-                      : activeMember.role === 'admin'
-                      ? 'bg-purple-100 text-purple-900'
-                      : 'bg-blue-100 text-blue-900'
-                  }`}
-                >
-                  {ROLE_LABELS[activeMember.role]}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                <UserCheck className="w-4 h-4 text-slate-600 shrink-0" />
+                <div className="flex flex-col items-start min-w-0">
+                  <span className="text-xs font-bold text-slate-900 leading-tight max-w-[140px] sm:max-w-[180px] truncate">
+                    {activeMember.fullName}
+                  </span>
+                  <span
+                    className={`mt-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold uppercase tracking-wider leading-tight ${
+                      activeMember.role === 'owner'
+                        ? 'bg-slate-900 text-white'
+                        : activeMember.role === 'admin'
+                        ? 'bg-purple-100 text-purple-900'
+                        : 'bg-blue-100 text-blue-900'
+                    }`}
+                  >
+                    {ROLE_LABELS[activeMember.role]}
+                  </span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               </button>
 
               {showMemberDropdown && (
@@ -248,7 +228,7 @@ export const Header: React.FC<HeaderProps> = ({
               )}
             </div>
 
-            {/* Direct PIN Lock & Logout Buttons */}
+            {/* Direct PIN Lock Button */}
             <button
               type="button"
               onClick={lockApp}
@@ -257,16 +237,6 @@ export const Header: React.FC<HeaderProps> = ({
               title="Kunci Layar Kasir"
             >
               <Lock className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={logout}
-              aria-label="Keluar dari akun"
-              className="hidden sm:inline-flex p-2 rounded-lg border border-slate-200 text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition-colors"
-              title="Keluar (Log Out)"
-            >
-              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>

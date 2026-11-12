@@ -246,7 +246,7 @@ export function getSampleCatalog(businessType: BusinessType, storeId: string = D
         customTerminology: {
           itemLabel: 'Produk',
           categoryLabel: 'Kategori',
-          orderIdentifier: 'Nama Pembeli / Barcode',
+          orderIdentifier: 'Nomor Meja',
         },
       },
     };

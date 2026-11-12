@@ -343,7 +343,7 @@ export const StaffManager: React.FC = () => {
                           ? 'Semua Modul + Branding Toko'
                           : m.role === 'admin'
                           ? 'Kasir, Katalog, Kas, Laba & Kelola Kasir'
-                          : 'Kasir, Ubah Stok/Status Menu & Arus Kas'}
+                          : 'Kasir, Ubah Stok/Status Menu & Cash Flow'}
                       </p>
                     </div>
                   </div>
@@ -519,7 +519,7 @@ export const StaffManager: React.FC = () => {
                   >
                     {creatableRoles.includes('cashier') && (
                       <option value="cashier">
-                        Kasir (Terminal POS, Ubah Stok/Status Menu &amp; Arus Kas)
+                        Kasir (Terminal POS, Ubah Stok/Status Menu &amp; Cash Flow)
                       </option>
                     )}
                     {creatableRoles.includes('admin') && (

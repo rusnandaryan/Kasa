@@ -54,6 +54,29 @@ export function generateInvoiceNumber(): string {
   return `INV-${year}${month}${day}-${randomSuffix}`;
 }
 
+export function normalizeTableKey(raw: string): string {
+  const trimmed = raw.trim().toLowerCase();
+  if (!trimmed) return '';
+  const withoutPrefix = trimmed.replace(/^meja\s*/i, '').replace(/\s+/g, '');
+  if (/^\d+$/.test(withoutPrefix)) {
+    return String(parseInt(withoutPrefix, 10));
+  }
+  return withoutPrefix;
+}
+
+export function formatTableLabel(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return 'Tanpa Meja';
+  if (/^\d+$/.test(trimmed)) {
+    return `Meja ${parseInt(trimmed, 10)}`;
+  }
+  return trimmed;
+}
+
+export function formatOrderTypeLabel(orderType?: 'dine_in' | 'take_away'): string {
+  return orderType === 'take_away' ? 'Take Away' : 'Dine In';
+}
+
 /**
  * Calculates WCAG relative luminance to determine optimal text color (white or slate-900)
  */

@@ -5,7 +5,11 @@ import Image from 'next/image';
 import { Printer, MessageCircle, X, Check, Share2 } from 'lucide-react';
 import { Order } from '@/core/types';
 import { useAppStore } from '@/core/store';
-import { formatRupiah, formatDateTime } from '@/core/formatters';
+import {
+  formatDateTime,
+  formatOrderTypeLabel,
+  formatRupiah,
+} from '@/core/formatters';
 
 interface ReceiptModalProps {
   order: Order | null;
@@ -54,7 +58,8 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
     text += `--------------------------------\n`;
 
     order.items.forEach((item) => {
-      text += `${item.productName} x${item.qty}\n`;
+      const modeLabel = formatOrderTypeLabel(item.orderType);
+      text += `${item.productName} [${modeLabel}] x${item.qty}\n`;
       if (item.variantsSelected && item.variantsSelected.length > 0) {
         text += `  (${item.variantsSelected.map((v) => v.optionName).join(', ')})\n`;
       }
@@ -169,22 +174,40 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
                   <span>{order.customerName}</span>
                 </div>
               )}
+              {(() => {
+                const hasDineIn = order.items.some((i) => i.orderType !== 'take_away');
+                const hasTakeAway = order.items.some((i) => i.orderType === 'take_away');
+                const summary =
+                  hasDineIn && hasTakeAway
+                    ? 'Dine In & Take Away'
+                    : hasTakeAway
+                    ? 'Take Away'
+                    : 'Dine In';
+                return (
+                  <div className="flex justify-between">
+                    <span>Tipe:</span>
+                    <span className="font-semibold">{summary}</span>
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Item Table */}
             <div className="py-2.5 border-b border-dashed border-slate-300 space-y-1.5 text-[11px]">
               {order.items.map((item, idx) => (
                 <div key={idx} className="space-y-0.5">
-                  <div className="flex justify-between">
-                    <span className="font-semibold truncate max-w-[170px]">{item.productName}</span>
+                  <div className="flex justify-between gap-2">
+                    <span className="font-semibold truncate max-w-[170px]">
+                      {item.productName}
+                    </span>
                     <span className="font-bold tabular-nums">{formatRupiah(item.subtotalItem)}</span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-slate-600">
+                  <div className="flex justify-between text-[10px] text-slate-600 gap-2">
                     <span>
-                      {item.qty} x {formatRupiah(item.unitPrice)}
+                      {item.qty} x {formatRupiah(item.unitPrice)} • [{formatOrderTypeLabel(item.orderType)}]
                     </span>
                     {item.variantsSelected && item.variantsSelected.length > 0 && (
-                      <span className="truncate max-w-[120px]">
+                      <span className="truncate max-w-[110px]">
                         {item.variantsSelected.map((v) => v.optionName).join(', ')}
                       </span>
                     )}

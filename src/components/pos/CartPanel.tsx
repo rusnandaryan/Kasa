@@ -1,33 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Trash2,
   Plus,
   Minus,
-  Percent,
   Receipt,
   User,
   Hash,
   BookmarkPlus,
   Tag,
+  Utensils,
+  ShoppingBag,
+  GitMerge,
+  CheckCircle2,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
-import { formatRupiah } from '@/core/formatters';
+import {
+  formatOrderTypeLabel,
+  formatRupiah,
+  normalizeTableKey,
+} from '@/core/formatters';
 
 interface CartPanelProps {
   onOpenPayment: () => void;
+  onOpenHoldModal: () => void;
+  externalTableError?: string | null;
+  onClearExternalTableError?: () => void;
 }
 
-export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
+export const CartPanel: React.FC<CartPanelProps> = ({
+  onOpenPayment,
+  onOpenHoldModal,
+  externalTableError = null,
+  onClearExternalTableError,
+}) => {
   const {
     branding,
     cartItems,
+    heldOrders,
     orderIdentifier,
     setOrderIdentifier,
     customerName,
-    customerPhone,
     setCustomerInfo,
+    activeOrderType,
+    setActiveOrderType,
+    toggleCartItemOrderType,
     discountType,
     discountValue,
     setDiscount,
@@ -39,10 +57,77 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
     removeCartItem,
     clearCart,
     holdCurrentOrder,
+    mergeHeldOrderIntoCart,
+    syncMatchingHeldOrderIntoCart,
   } = useAppStore();
 
   const [showDiscountInput, setShowDiscountInput] = useState(false);
-  const [showCustomerInput, setShowCustomerInput] = useState(false);
+  const [holdFeedbackMsg, setHoldFeedbackMsg] = useState<string | null>(null);
+  const [localTableError, setLocalTableError] = useState<string | null>(null);
+  const tableInputRef = useRef<HTMLInputElement>(null);
+  const feedbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const activeTableError = !orderIdentifier.trim()
+    ? localTableError || externalTableError
+    : null;
+
+  useEffect(() => {
+    return () => {
+      if (feedbackTimerRef.current) {
+        clearTimeout(feedbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const showTempFeedback = (message: string) => {
+    setHoldFeedbackMsg(message);
+    if (feedbackTimerRef.current) {
+      clearTimeout(feedbackTimerRef.current);
+    }
+    feedbackTimerRef.current = setTimeout(() => {
+      setHoldFeedbackMsg(null);
+    }, 3500);
+  };
+
+  const normalizedTableKey = normalizeTableKey(orderIdentifier);
+  const matchingHold = normalizedTableKey
+    ? heldOrders.find((h) => normalizeTableKey(h.orderIdentifier) === normalizedTableKey)
+    : undefined;
+
+  const requireTableNumber = (): boolean => {
+    if (!orderIdentifier.trim()) {
+      setLocalTableError('Nomor Meja wajib diisi sebelum menyimpan atau mencetak struk.');
+      tableInputRef.current?.focus();
+      return false;
+    }
+    setLocalTableError(null);
+    onClearExternalTableError?.();
+    return true;
+  };
+
+  const handleHoldOrder = () => {
+    if (!requireTableNumber()) return;
+    const result = holdCurrentOrder();
+    if (!result) return;
+    if (result.merged) {
+      showTempFeedback(`Pesanan digabungkan ke ${result.tableLabel} (Pesanan Aktif).`);
+    } else {
+      showTempFeedback(`${result.tableLabel} disimpan ke Pesanan Aktif.`);
+    }
+  };
+
+  const handleMergeMatchingNow = () => {
+    if (!matchingHold) return;
+    const label = matchingHold.orderIdentifier;
+    mergeHeldOrderIntoCart(matchingHold.id);
+    showTempFeedback(`Pesanan ${label} digabungkan ke daftar pesanan ini.`);
+  };
+
+  const handleOpenPayment = () => {
+    if (!requireTableNumber()) return;
+    syncMatchingHeldOrderIntoCart();
+    onOpenPayment();
+  };
 
   // Calculations
   const subtotal = cartItems.reduce((acc, item) => acc + item.subtotal, 0);
@@ -68,78 +153,154 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
     <div className="flex flex-col h-full bg-white border-l border-slate-200">
       {/* Cart Header */}
       <div className="p-3 sm:p-4 border-b border-slate-200 bg-slate-50/70 space-y-2">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-blue-600" />
-            <h3 className="font-bold text-slate-900 text-sm sm:text-base">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <Receipt className="w-5 h-5 text-blue-600 shrink-0" />
+            <h3 className="font-bold text-slate-900 text-sm sm:text-base truncate">
               Daftar Pesanan
             </h3>
-            <span className="text-xs px-2 py-0.5 rounded-md font-bold bg-blue-100 text-blue-700">
+            <span className="text-[11px] px-1.5 py-0.5 rounded-md font-bold bg-blue-100 text-blue-700 shrink-0">
               {cartItems.reduce((acc, item) => acc + item.qty, 0)} item
             </span>
           </div>
 
-          {cartItems.length > 0 && (
-            <button
-              type="button"
-              onClick={clearCart}
-              className="text-xs text-rose-600 hover:text-rose-800 font-semibold p-1 hover:bg-rose-50 rounded-md transition-colors"
-              title="Kosongkan Pesanan"
-            >
-              Reset
-            </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {heldOrders.length > 0 && (
+              <button
+                type="button"
+                onClick={onOpenHoldModal}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs"
+                title="Lihat daftar pesanan aktif"
+              >
+                <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span>Pesanan Aktif ({heldOrders.length})</span>
+              </button>
+            )}
+
+            {cartItems.length > 0 && (
+              <button
+                type="button"
+                onClick={clearCart}
+                className="text-xs text-rose-600 hover:text-rose-800 font-semibold p-1 hover:bg-rose-50 rounded-md transition-colors"
+                title="Kosongkan Pesanan"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Table Number & Customer Name */}
+        <div className="space-y-1.5">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="relative">
+              <Hash className={`w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${activeTableError ? 'text-rose-500' : 'text-slate-500'}`} />
+              <input
+                id="order-identifier-input"
+                ref={tableInputRef}
+                type="text"
+                required
+                value={orderIdentifier}
+                onChange={(e) => {
+                  setOrderIdentifier(e.target.value);
+                  if (e.target.value.trim()) {
+                    setLocalTableError(null);
+                    onClearExternalTableError?.();
+                  }
+                }}
+                placeholder="Nomor Meja *"
+                aria-label="Nomor Meja wajib diisi"
+                aria-invalid={Boolean(activeTableError)}
+                className={`w-full h-9 pl-8 pr-2.5 rounded-lg border bg-white text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-1 placeholder:font-normal ${
+                  activeTableError
+                    ? 'border-rose-400 focus:ring-rose-500 placeholder:text-rose-400'
+                    : 'border-slate-200 focus:ring-blue-500 placeholder:text-slate-500'
+                }`}
+              />
+            </div>
+
+            <div className="relative">
+              <User className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerInfo(e.target.value, '')}
+                placeholder="Nama Pelanggan"
+                aria-label="Nama Pelanggan"
+                className="w-full h-9 pl-8 pr-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500 placeholder:font-normal"
+              />
+            </div>
+          </div>
+
+          {activeTableError && (
+            <p className="text-[11px] font-semibold text-rose-600 px-0.5">
+              {activeTableError}
+            </p>
           )}
         </div>
 
-        {/* Order Identifier & Customer toggle */}
-        <div className="grid grid-cols-2 gap-2">
-          {/* Order Identifier (Meja / Antrean / Plat) */}
-          <div className="relative">
-            <Hash className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={orderIdentifier}
-              onChange={(e) => setOrderIdentifier(e.target.value)}
-              placeholder={branding.customTerminology.orderIdentifier || 'Nomor Meja'}
-              className="w-full h-9 pl-8 pr-2.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500 placeholder:font-normal"
-            />
-          </div>
-
-          {/* Customer button/field */}
+        {/* Service Mode Toggle: Dine In / Take Away */}
+        <div
+          className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-200/70"
+          role="group"
+          aria-label="Tipe Pesanan"
+        >
           <button
             type="button"
-            onClick={() => setShowCustomerInput(!showCustomerInput)}
-            className={`h-9 px-2.5 rounded-lg border flex items-center justify-between text-xs transition-colors ${
-              customerName || customerPhone
-                ? 'bg-blue-50 border-blue-200 text-blue-800 font-semibold'
-                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+            onClick={() => setActiveOrderType('dine_in')}
+            className={`h-8 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all ${
+              activeOrderType === 'dine_in'
+                ? 'bg-white text-blue-700 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <span className="truncate flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-slate-500" />
-              <span className="truncate">{customerName || 'Nama Pelanggan'}</span>
-            </span>
-            <span className="text-[10px] text-slate-500 font-medium">Edit</span>
+            <Utensils className="w-3.5 h-3.5" />
+            <span>Dine In</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveOrderType('take_away')}
+            className={`h-8 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all ${
+              activeOrderType === 'take_away'
+                ? 'bg-white text-amber-700 shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ShoppingBag className="w-3.5 h-3.5" />
+            <span>Take Away</span>
           </button>
         </div>
 
-        {/* Expandable Customer Input Details */}
-        {showCustomerInput && (
-          <div className="p-2.5 rounded-xl bg-blue-50/50 border border-blue-100 space-y-2 animate-in fade-in duration-100">
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerInfo(e.target.value, customerPhone)}
-              placeholder="Nama Lengkap Pelanggan"
-              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden placeholder:text-slate-500"
-            />
-            <input
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerInfo(customerName, e.target.value)}
-              placeholder="Nomor WhatsApp (misal: 081234567890)"
-              className="w-full h-8 px-2.5 rounded-md border border-blue-200 bg-white text-xs text-slate-800 focus:outline-hidden placeholder:text-slate-500"
-            />
+        {/* Existing Table Active Order Auto-Merge Notice */}
+        {matchingHold && (
+          <div className="px-2.5 py-2 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold text-amber-900 truncate">
+                {matchingHold.orderIdentifier} punya {matchingHold.items.length} pesanan aktif
+              </p>
+              <p className="text-[10px] text-amber-700 leading-tight">
+                Simpan / Bayar otomatis gabung ke 1 struk
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleMergeMatchingNow}
+              className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold transition-colors"
+            >
+              <GitMerge className="w-3 h-3" />
+              <span>Gabung</span>
+            </button>
+          </div>
+        )}
+
+        {/* Transient Hold/Merge Confirmation */}
+        {holdFeedbackMsg && (
+          <div className="px-2.5 py-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-1.5 text-[11px] font-semibold">
+            <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+            <span className="truncate">{holdFeedbackMsg}</span>
           </div>
         )}
       </div>
@@ -161,9 +322,28 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             <div key={item.id} className="py-2.5 first:pt-0 last:pb-0 space-y-1.5">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
-                    {item.name}
-                  </h4>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                      {item.name}
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => toggleCartItemOrderType(item.id)}
+                      title="Klik untuk ubah Dine In / Take Away"
+                      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold border transition-colors ${
+                        item.orderType === 'take_away'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
+                          : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                      }`}
+                    >
+                      {item.orderType === 'take_away' ? (
+                        <ShoppingBag className="w-2.5 h-2.5" />
+                      ) : (
+                        <Utensils className="w-2.5 h-2.5" />
+                      )}
+                      <span>{formatOrderTypeLabel(item.orderType)}</span>
+                    </button>
+                  </div>
                   {item.selectedVariants.length > 0 && (
                     <p className="text-[11px] text-slate-500">
                       {item.selectedVariants.map((v) => v.optionName).join(', ')}
@@ -240,11 +420,11 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
           <div className="flex items-center justify-between gap-2">
             <button
               type="button"
-              onClick={holdCurrentOrder}
+              onClick={handleHoldOrder}
               className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-colors"
             >
               <BookmarkPlus className="w-3.5 h-3.5" />
-              <span>Simpan Pesanan</span>
+              <span>{matchingHold ? 'Gabung & Simpan' : 'Simpan Pesanan'}</span>
             </button>
 
             <button
@@ -355,7 +535,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
           {/* Big Grand Total & Pay Button (min 56px touch target for tactile speed) */}
           <button
             type="button"
-            onClick={onOpenPayment}
+            onClick={handleOpenPayment}
             className="w-full h-14 rounded-2xl shadow-md hover:shadow-lg transition-all duration-150 flex items-center justify-between px-4 sm:px-5 active:scale-[0.99]"
             style={{
               backgroundColor: 'var(--brand-primary, #2563EB)',

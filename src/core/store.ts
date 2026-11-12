@@ -7,6 +7,7 @@ import {
   HoldOrder,
   CashierShift,
   BusinessType,
+  OrderServiceType,
 } from './types';
 import {
   db,
@@ -15,7 +16,12 @@ import {
   DEFAULT_STORE_ID,
   getSampleCatalog,
 } from './db';
-import { adjustColorDarker, getContrastingTextColor } from './formatters';
+import {
+  adjustColorDarker,
+  formatTableLabel,
+  getContrastingTextColor,
+  normalizeTableKey,
+} from './formatters';
 import {
   canAccessTab,
   clearAuthSession,
@@ -23,6 +29,46 @@ import {
   saveAuthSession,
   verifyPassword,
 } from './auth';
+
+function getCartLineKey(item: Pick<CartItem, 'productId' | 'itemNotes' | 'selectedVariants' | 'orderType'>): string {
+  const variantKey = item.selectedVariants
+    .map((v) => `${v.groupName}:${v.optionName}`)
+    .sort()
+    .join('|');
+  const orderType = item.orderType || 'dine_in';
+  return `${item.productId}::${orderType}::${item.itemNotes || ''}::${variantKey}`;
+}
+
+function mergeCartLines(baseItems: CartItem[], incomingItems: CartItem[]): CartItem[] {
+  const merged: CartItem[] = baseItems.map((item) => ({
+    ...item,
+    orderType: item.orderType || 'dine_in',
+  }));
+
+  for (const rawIncoming of incomingItems) {
+    const incoming: CartItem = {
+      ...rawIncoming,
+      orderType: rawIncoming.orderType || 'dine_in',
+    };
+    const key = getCartLineKey(incoming);
+    const existingIdx = merged.findIndex((m) => getCartLineKey(m) === key);
+
+    if (existingIdx >= 0) {
+      const existing = merged[existingIdx];
+      const nextQty = existing.qty + incoming.qty;
+      merged[existingIdx] = {
+        ...existing,
+        qty: nextQty,
+        subtotal: Math.round(nextQty * existing.unitPrice),
+        maxStock: incoming.maxStock ?? existing.maxStock,
+      };
+    } else {
+      merged.push(incoming);
+    }
+  }
+
+  return merged;
+}
 
 export type ActiveTab = 'pos' | 'catalog' | 'cashflow' | 'dashboard' | 'staff' | 'settings';
 
@@ -60,6 +106,7 @@ interface AppState {
 
   // POS Cart State
   cartItems: CartItem[];
+  activeOrderType: OrderServiceType;
   orderIdentifier: string;
   customerName: string;
   customerPhone: string;
@@ -70,6 +117,7 @@ interface AppState {
   heldOrders: HoldOrder[];
 
   // Cart Actions
+  setActiveOrderType: (type: OrderServiceType) => void;
   setOrderIdentifier: (val: string) => void;
   setCustomerInfo: (name: string, phone: string) => void;
   setDiscount: (type: 'percent' | 'nominal', value: number) => void;
@@ -82,10 +130,13 @@ interface AppState {
     customPrice?: number
   ) => void;
   updateCartItemQty: (cartItemId: string, newQty: number) => void;
+  toggleCartItemOrderType: (cartItemId: string) => void;
   removeCartItem: (cartItemId: string) => void;
   clearCart: () => void;
-  holdCurrentOrder: () => void;
+  holdCurrentOrder: () => { merged: boolean; tableLabel: string } | null;
   restoreHeldOrder: (holdOrderId: string) => void;
+  mergeHeldOrderIntoCart: (holdOrderId: string) => void;
+  syncMatchingHeldOrderIntoCart: () => string | null;
   deleteHeldOrder: (holdOrderId: string) => void;
 
   // Switch Business Type preset
@@ -105,6 +156,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   // Cart initial state
   cartItems: [],
+  activeOrderType: 'dine_in',
   orderIdentifier: '',
   customerName: '',
   customerPhone: '',
@@ -258,12 +310,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   unlockWithPin: (pin: string) => {
-    const { allMembers, activeTab } = get();
-    const match = allMembers.find((m) => m.pinCode === pin && m.isActive);
-    if (match) {
-      saveAuthSession(match.id);
-      const nextTab = canAccessTab(match.role, activeTab) ? activeTab : 'pos';
-      set({ isPinLocked: false, activeMember: match, activeTab: nextTab });
+    const { activeMember, allMembers } = get();
+    const freshActive =
+      allMembers.find((m) => m.id === activeMember.id && m.isActive) || activeMember;
+
+    // Validate PIN strictly against the currently logged-in account so locking never switches users
+    if (freshActive.isActive && freshActive.pinCode === pin) {
+      set({ isPinLocked: false, activeMember: freshActive });
       return true;
     }
     return false;
@@ -297,6 +350,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setOnlineStatus: (status: boolean) => set({ isOnline: status }),
 
+  setActiveOrderType: (type: OrderServiceType) => set({ activeOrderType: type }),
   setOrderIdentifier: (val: string) => set({ orderIdentifier: val }),
   setCustomerInfo: (name: string, phone: string) => set({ customerName: name, customerPhone: phone }),
   setDiscount: (type: 'percent' | 'nominal', value: number) =>
@@ -309,7 +363,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       return;
     }
 
-    const { cartItems } = get();
+    const { cartItems, activeOrderType } = get();
     if (product.trackInventory) {
       const totalInCartForProduct = cartItems
         .filter((item) => item.productId === product.id)
@@ -323,14 +377,14 @@ export const useAppStore = create<AppState>((set, get) => ({
     const variantsDelta = selectedVariants.reduce((sum, v) => sum + v.priceDelta, 0);
     const itemUnitPrice = effectiveUnitPrice + variantsDelta;
 
-    // Check if exact same product with exact same variants exists
-    const variantKey = selectedVariants.map((v) => `${v.groupName}:${v.optionName}`).sort().join('|');
-    const existingIndex = cartItems.findIndex(
-      (item) =>
-        item.productId === product.id &&
-        item.itemNotes === notes &&
-        item.selectedVariants.map((v) => `${v.groupName}:${v.optionName}`).sort().join('|') === variantKey
-    );
+    // Check if exact same product, variants, notes, AND service type (Dine In vs Take Away) exists
+    const incomingKey = getCartLineKey({
+      productId: product.id,
+      itemNotes: notes,
+      selectedVariants,
+      orderType: activeOrderType,
+    });
+    const existingIndex = cartItems.findIndex((item) => getCartLineKey(item) === incomingKey);
 
     const maxStock = product.trackInventory ? product.stockQty : undefined;
 
@@ -357,6 +411,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         allowDecimalQty: product.allowDecimalQty,
         selectedVariants,
         itemNotes: notes,
+        orderType: activeOrderType,
         subtotal: itemUnitPrice,
         maxStock,
       };
@@ -401,6 +456,19 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ cartItems: updated });
   },
 
+  toggleCartItemOrderType: (cartItemId: string) => {
+    const { cartItems } = get();
+    const target = cartItems.find((i) => i.id === cartItemId);
+    if (!target) return;
+
+    const nextType: OrderServiceType =
+      (target.orderType || 'dine_in') === 'dine_in' ? 'take_away' : 'dine_in';
+
+    const toggledItem: CartItem = { ...target, orderType: nextType };
+    const withoutTarget = cartItems.filter((i) => i.id !== cartItemId);
+    set({ cartItems: mergeCartLines(withoutTarget, [toggledItem]) });
+  },
+
   removeCartItem: (cartItemId: string) => {
     const { cartItems } = get();
     set({ cartItems: cartItems.filter((item) => item.id !== cartItemId) });
@@ -409,6 +477,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   clearCart: () => {
     set({
       cartItems: [],
+      activeOrderType: 'dine_in',
       orderIdentifier: '',
       customerName: '',
       customerPhone: '',
@@ -420,14 +489,41 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   holdCurrentOrder: () => {
     const { cartItems, orderIdentifier, customerName, heldOrders } = get();
-    if (cartItems.length === 0) return;
+    if (cartItems.length === 0 || !orderIdentifier.trim()) return null;
 
+    const tableKey = normalizeTableKey(orderIdentifier);
+    const existingIndex = tableKey
+      ? heldOrders.findIndex((h) => normalizeTableKey(h.orderIdentifier) === tableKey)
+      : -1;
+
+    if (existingIndex >= 0) {
+      const existing = heldOrders[existingIndex];
+      const mergedItems = mergeCartLines(existing.items, cartItems);
+      const mergedTotal = mergedItems.reduce((acc, it) => acc + it.subtotal, 0);
+      const updatedHold: HoldOrder = {
+        ...existing,
+        customerName:
+          customerName.trim() ||
+          (existing.customerName !== 'Pelanggan Umum' ? existing.customerName : 'Pelanggan Umum'),
+        items: mergedItems,
+        heldAt: new Date().toISOString(),
+        total: mergedTotal,
+      };
+
+      const nextHeldOrders = [...heldOrders];
+      nextHeldOrders[existingIndex] = updatedHold;
+      set({ heldOrders: nextHeldOrders });
+      get().clearCart();
+      return { merged: true, tableLabel: existing.orderIdentifier };
+    }
+
+    const tableLabel = formatTableLabel(orderIdentifier);
     const subtotal = cartItems.reduce((acc, it) => acc + it.subtotal, 0);
     const newHold: HoldOrder = {
       id: `hold-${Date.now()}`,
-      customerName: customerName || 'Pelanggan Umum',
-      orderIdentifier: orderIdentifier || 'Tanpa Meja',
-      items: [...cartItems],
+      customerName: customerName.trim() || 'Pelanggan Umum',
+      orderIdentifier: tableLabel,
+      items: cartItems.map((it) => ({ ...it, orderType: it.orderType || 'dine_in' })),
       heldAt: new Date().toISOString(),
       total: subtotal,
     };
@@ -436,6 +532,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       heldOrders: [newHold, ...heldOrders],
     });
     get().clearCart();
+    return { merged: false, tableLabel };
   },
 
   restoreHeldOrder: (holdOrderId: string) => {
@@ -444,11 +541,41 @@ export const useAppStore = create<AppState>((set, get) => ({
     if (!target) return;
 
     set({
-      cartItems: target.items,
+      cartItems: target.items.map((it) => ({ ...it, orderType: it.orderType || 'dine_in' })),
       orderIdentifier: target.orderIdentifier === 'Tanpa Meja' ? '' : target.orderIdentifier,
       customerName: target.customerName === 'Pelanggan Umum' ? '' : target.customerName,
       heldOrders: heldOrders.filter((h) => h.id !== holdOrderId),
     });
+  },
+
+  mergeHeldOrderIntoCart: (holdOrderId: string) => {
+    const { heldOrders, cartItems, orderIdentifier, customerName } = get();
+    const target = heldOrders.find((h) => h.id === holdOrderId);
+    if (!target) return;
+
+    const mergedItems = mergeCartLines(target.items, cartItems);
+    set({
+      cartItems: mergedItems,
+      orderIdentifier:
+        orderIdentifier.trim() ||
+        (target.orderIdentifier === 'Tanpa Meja' ? '' : target.orderIdentifier),
+      customerName:
+        customerName.trim() ||
+        (target.customerName === 'Pelanggan Umum' ? '' : target.customerName),
+      heldOrders: heldOrders.filter((h) => h.id !== holdOrderId),
+    });
+  },
+
+  syncMatchingHeldOrderIntoCart: () => {
+    const { orderIdentifier, heldOrders } = get();
+    const tableKey = normalizeTableKey(orderIdentifier);
+    if (!tableKey) return null;
+
+    const match = heldOrders.find((h) => normalizeTableKey(h.orderIdentifier) === tableKey);
+    if (!match) return null;
+
+    get().mergeHeldOrderIntoCart(match.id);
+    return match.orderIdentifier;
   },
 
   deleteHeldOrder: (holdOrderId: string) => {

@@ -4,9 +4,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Delete, ShieldAlert } from 'lucide-react';
 import { useAppStore } from '@/core/store';
+import { ROLE_LABELS } from '@/core/auth';
 
 export const PinLockScreen: React.FC = () => {
-  const { branding, unlockWithPin, logout } = useAppStore();
+  const { branding, activeMember, unlockWithPin, logout } = useAppStore();
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -78,8 +79,11 @@ export const PinLockScreen: React.FC = () => {
         <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           {branding.brandName}
         </h2>
+        <p className="text-xs font-semibold text-slate-800 mt-1 text-center">
+          {activeMember.fullName} ({ROLE_LABELS[activeMember.role]})
+        </p>
         <p className="text-xs text-slate-600 mt-0.5 text-center">
-          Masukkan 6-Digit PIN Kasir atau Admin untuk membuka
+          Masukkan 6-Digit PIN akun Anda untuk membuka layar
         </p>
 
         {/* PIN Dots Display */}

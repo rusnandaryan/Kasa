@@ -78,10 +78,10 @@ export const CashflowManager: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
           <div>
             <h2 className="text-lg sm:text-xl font-bold text-slate-900">
-              Buku Kas & Arus Kas (Uang Masuk & Keluar)
+              Cash Flow
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
-              Pantau seluruh aliran rupiah usaha secara transparan tanpa istilah akuntansi yang rumit.
+              Pantau seluruh pemasukan penjualan dan catatan kas keluar usaha secara transparan.
             </p>
           </div>
 
@@ -98,30 +98,17 @@ export const CashflowManager: React.FC = () => {
               </button>
             )}
 
-            {/* Quick + Income */}
-            <button
-              type="button"
-              onClick={() => {
-                setEntryModalType('income');
-                setIsEntryModalOpen(true);
-              }}
-              className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>+ Uang Masuk</span>
-            </button>
-
-            {/* Quick - Expense */}
+            {/* Kas Keluar Button */}
             <button
               type="button"
               onClick={() => {
                 setEntryModalType('expense');
                 setIsEntryModalOpen(true);
               }}
-              className="px-3 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>- Uang Keluar</span>
+              <span>Kas Keluar</span>
             </button>
           </div>
         </div>
@@ -256,28 +243,19 @@ export const CashflowManager: React.FC = () => {
                         </div>
                         <p className="text-sm font-bold text-slate-700">Belum Ada Catatan Kas</p>
                         <p className="text-xs text-slate-500 mt-1 mb-4">
-                          Belum ada transaksi uang masuk atau uang keluar yang dicatat pada filter ini.
+                          Belum ada transaksi pemasukan atau kas keluar yang dicatat pada filter ini.
                         </p>
                         <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEntryModalType('income');
-                              setIsEntryModalOpen(true);
-                            }}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors"
-                          >
-                            + Catat Uang Masuk
-                          </button>
                           <button
                             type="button"
                             onClick={() => {
                               setEntryModalType('expense');
                               setIsEntryModalOpen(true);
                             }}
-                            className="px-3 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors"
+                            className="px-3.5 py-1.5 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors flex items-center gap-1"
                           >
-                            - Catat Uang Keluar
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Kas Keluar</span>
                           </button>
                         </div>
                       </div>
@@ -366,12 +344,14 @@ export const CashflowManager: React.FC = () => {
       </div>
 
       {/* Entry Modal */}
-      <CashflowEntryModal
-        isOpen={isEntryModalOpen}
-        initialType={entryModalType}
-        onClose={() => setIsEntryModalOpen(false)}
-        onSaved={loadData}
-      />
+      {isEntryModalOpen && (
+        <CashflowEntryModal
+          isOpen={isEntryModalOpen}
+          initialType={entryModalType}
+          onClose={() => setIsEntryModalOpen(false)}
+          onSaved={loadData}
+        />
+      )}
 
       {/* Shift Close Modal */}
       <ShiftCloseModal

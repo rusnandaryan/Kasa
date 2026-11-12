@@ -2,6 +2,8 @@ export type BusinessType = 'fnb' | 'retail' | 'service' | 'custom';
 
 export type UserRole = 'owner' | 'admin' | 'cashier';
 
+export type OrderServiceType = 'dine_in' | 'take_away';
+
 export type PaymentMethod = 'cash' | 'qris' | 'transfer' | 'ewallet' | 'debt';
 
 export type PaymentStatus = 'paid' | 'pending' | 'voided' | 'debt';
@@ -113,6 +115,7 @@ export interface CartItem {
     priceDelta: number;
   }[];
   itemNotes?: string;
+  orderType?: OrderServiceType;
   subtotal: number;
   maxStock?: number;
 }
@@ -130,6 +133,7 @@ export interface OrderItemSnap {
     priceDelta: number;
   }[];
   itemNotes?: string;
+  orderType?: OrderServiceType;
   subtotalItem: number;
 }
 

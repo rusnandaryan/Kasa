@@ -123,6 +123,10 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const handleCompletePayment = async () => {
+    if (!orderIdentifier.trim()) {
+      setErrorMsg('Nomor Meja wajib diisi sebelum mencetak struk.');
+      return;
+    }
     if (isCashInsufficient) {
       setErrorMsg('Uang yang diterima kurang dari total belanja.');
       return;
@@ -153,6 +157,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
           unitName: item.unitName,
           variantsSelected: item.selectedVariants,
           itemNotes: item.itemNotes,
+          orderType: item.orderType || 'dine_in',
           subtotalItem: item.subtotal,
         })),
         subtotal,

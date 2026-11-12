@@ -7,7 +7,7 @@ import { useAppStore } from '@/core/store';
 import { verifyPassword } from '@/core/auth';
 
 export const LoginScreen: React.FC = () => {
-  const { branding, allMembers, loginWithCredentials } = useAppStore();
+  const { allMembers, loginWithCredentials } = useAppStore();
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -41,30 +41,24 @@ export const LoginScreen: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-6 antialiased select-none">
       <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
-        {/* Store Identity Header */}
+        {/* Locked KASA Application Brand Header */}
         <div className="flex flex-col items-center text-center">
           <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs mb-3 flex items-center justify-center">
-            {branding.logoUrl ? (
-              <Image
-                src={branding.logoUrl}
-                alt={`Logo ${branding.brandName}`}
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
-            ) : (
-              <span className="font-bold text-2xl text-slate-900">
-                {branding.brandName.charAt(0)}
-              </span>
-            )}
+            <Image
+              src="/logo.jpg"
+              alt="Logo KASA"
+              width={64}
+              height={64}
+              className="w-full h-full object-cover"
+              unoptimized
+            />
           </div>
 
           <h1 className="text-xl font-bold text-slate-900 tracking-tight">
-            {branding.brandName}
+            KASA
           </h1>
           <p className="text-xs text-slate-600 mt-1">
-            {branding.tagline || 'Sistem Kasir & Pembukuan UMKM'}
+            Sistem Kasir &amp; Pembukuan UMKM
           </p>
         </div>
 

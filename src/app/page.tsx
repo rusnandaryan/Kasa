@@ -5,6 +5,7 @@ import { useAppStore } from '@/core/store';
 import { initializeDatabase } from '@/core/db';
 import { Header } from '@/components/layout/Header';
 import { Navigation } from '@/components/layout/Navigation';
+import { Footer } from '@/components/layout/Footer';
 import { PinLockScreen } from '@/components/layout/PinLockScreen';
 import { LoginScreen } from '@/components/auth/LoginScreen';
 import { POSTerminal } from '@/components/pos/POSTerminal';
@@ -13,8 +14,6 @@ import { CashflowManager } from '@/components/cashflow/CashflowManager';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { StaffManager } from '@/components/staff/StaffManager';
 import { SettingsBranding } from '@/components/settings/SettingsBranding';
-import { CashflowEntryModal } from '@/components/cashflow/CashflowEntryModal';
-import { HoldOrdersModal } from '@/components/pos/HoldOrdersModal';
 import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { ShortcutModal } from '@/components/pos/ShortcutModal';
 
@@ -22,14 +21,13 @@ export default function Home() {
   const {
     isInitializing,
     isAuthenticated,
+    activeMember,
     initStore,
     activeTab,
     isPinLocked,
     setOnlineStatus,
   } = useAppStore();
 
-  const [isQuickExpenseOpen, setIsQuickExpenseOpen] = useState(false);
-  const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
@@ -91,9 +89,11 @@ export default function Home() {
 
       {/* Top Application Header */}
       <Header
-        onOpenQuickExpense={() => setIsQuickExpenseOpen(true)}
-        onOpenHoldModal={() => setIsHoldModalOpen(true)}
-        onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        onOpenOnboarding={() => {
+          if (activeMember.role === 'owner') {
+            setIsOnboardingOpen(true);
+          }
+        }}
         onOpenShortcuts={() => setIsShortcutModalOpen(true)}
       />
 
@@ -110,27 +110,16 @@ export default function Home() {
         {activeTab === 'settings' && <SettingsBranding />}
       </main>
 
-      {/* Quick Cashflow Out Modal */}
-      <CashflowEntryModal
-        isOpen={isQuickExpenseOpen}
-        initialType="expense"
-        onClose={() => setIsQuickExpenseOpen(false)}
-        onSaved={() => {
-          // Handled within store and components
-        }}
-      />
+      {/* Application Footer */}
+      <Footer />
 
-      {/* Parked Orders Modal */}
-      <HoldOrdersModal
-        isOpen={isHoldModalOpen}
-        onClose={() => setIsHoldModalOpen(false)}
-      />
-
-      {/* Onboarding Wizard Modal */}
-      <OnboardingModal
-        isOpen={isOnboardingOpen}
-        onClose={() => setIsOnboardingOpen(false)}
-      />
+      {/* Onboarding Wizard Modal (Owner Only) */}
+      {activeMember.role === 'owner' && (
+        <OnboardingModal
+          isOpen={isOnboardingOpen}
+          onClose={() => setIsOnboardingOpen(false)}
+        />
+      )}
 
       {/* Keyboard Shortcuts Cheat Sheet Modal (REC-02) */}
       <ShortcutModal

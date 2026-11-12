@@ -21,7 +21,7 @@ interface OnboardingModalProps {
 }
 
 export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClose }) => {
-  const { branding, updateBranding, applyBusinessPreset, allMembers, reloadMembers } = useAppStore();
+  const { branding, updateBranding, applyBusinessPreset, allMembers, reloadMembers, activeMember } = useAppStore();
 
   const [step, setStep] = useState<number>(1);
   const [selectedType, setSelectedType] = useState<BusinessType>(branding.businessType || 'fnb');
@@ -41,7 +41,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+  if (!isOpen || activeMember.role !== 'owner') return null;
 
   const handleNextStep1 = async () => {
     await applyBusinessPreset(selectedType);

@@ -5,29 +5,42 @@ import { ProductGrid } from './ProductGrid';
 import { CartPanel } from './CartPanel';
 import { PaymentModal } from './PaymentModal';
 import { ReceiptModal } from './ReceiptModal';
+import { HoldOrdersModal } from './HoldOrdersModal';
 import { Order } from '@/core/types';
 import { useAppStore } from '@/core/store';
 import { ShoppingCart } from 'lucide-react';
 import { formatRupiah } from '@/core/formatters';
 
 export const POSTerminal: React.FC = () => {
-  const { cartItems } = useAppStore();
+  const { cartItems, heldOrders, orderIdentifier, syncMatchingHeldOrderIntoCart } = useAppStore();
   const [isPaymentOpen, setIsPaymentOpen] = useState(false);
+  const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [mobileView, setMobileView] = useState<'catalog' | 'cart'>('catalog');
+  const [shortcutTableError, setShortcutTableError] = useState(false);
 
   // Physical Keyboard Accelerators (F8 for Quick Checkout)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'F8' && cartItems.length > 0 && !isPaymentOpen && !isReceiptOpen) {
         e.preventDefault();
+        if (!orderIdentifier.trim()) {
+          setShortcutTableError(true);
+          setMobileView('cart');
+          requestAnimationFrame(() => {
+            document.getElementById('order-identifier-input')?.focus();
+          });
+          return;
+        }
+        setShortcutTableError(false);
+        syncMatchingHeldOrderIntoCart();
         setIsPaymentOpen(true);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [cartItems.length, isPaymentOpen, isReceiptOpen]);
+  }, [cartItems.length, orderIdentifier, isPaymentOpen, isReceiptOpen, syncMatchingHeldOrderIntoCart]);
 
   const handlePaymentSuccess = (order: Order) => {
     setIsPaymentOpen(false);
@@ -37,9 +50,13 @@ export const POSTerminal: React.FC = () => {
 
   const totalCartCount = cartItems.reduce((acc, i) => acc + i.qty, 0);
   const totalCartAmount = cartItems.reduce((acc, i) => acc + i.subtotal, 0);
+  const tableErrorText =
+    shortcutTableError && !orderIdentifier.trim()
+      ? 'Nomor Meja wajib diisi sebelum membayar atau mencetak struk.'
+      : null;
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-8rem)] min-h-[500px] overflow-hidden relative">
+    <div className="flex-1 flex flex-col md:h-[calc(100vh-10.25rem)] min-h-[480px] overflow-hidden relative">
       {/* Keyboard Shortcut Accelerator Bar (Desktop / Tablet) */}
       <div className="hidden md:flex items-center justify-between px-4 py-1 bg-slate-100 border-b border-slate-200 text-[11px] text-slate-600 shrink-0">
         <div className="flex items-center gap-3">
@@ -65,10 +82,6 @@ export const POSTerminal: React.FC = () => {
             <span>Bantuan [?]</span>
           </span>
         </div>
-        <div className="text-[11px] font-semibold text-emerald-700 flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Terminal Siap</span>
-        </div>
       </div>
 
       {/* Desktop / Tablet Split Screen (65% Products / 35% Cart) */}
@@ -77,7 +90,12 @@ export const POSTerminal: React.FC = () => {
           <ProductGrid />
         </div>
         <div className="md:col-span-5 lg:col-span-4 h-full overflow-hidden">
-          <CartPanel onOpenPayment={() => setIsPaymentOpen(true)} />
+          <CartPanel
+            onOpenPayment={() => setIsPaymentOpen(true)}
+            onOpenHoldModal={() => setIsHoldModalOpen(true)}
+            externalTableError={tableErrorText}
+            onClearExternalTableError={() => setShortcutTableError(false)}
+          />
         </div>
       </div>
 
@@ -87,30 +105,53 @@ export const POSTerminal: React.FC = () => {
           {mobileView === 'catalog' ? (
             <ProductGrid />
           ) : (
-            <CartPanel onOpenPayment={() => setIsPaymentOpen(true)} />
+            <CartPanel
+              onOpenPayment={() => setIsPaymentOpen(true)}
+              onOpenHoldModal={() => setIsHoldModalOpen(true)}
+              externalTableError={tableErrorText}
+              onClearExternalTableError={() => setShortcutTableError(false)}
+            />
           )}
         </div>
 
-        {/* Floating Mobile Cart Bar */}
-        {mobileView === 'catalog' && cartItems.length > 0 && (
-          <div className="p-3 bg-white border-t border-slate-200">
-            <button
-              type="button"
-              onClick={() => setMobileView('cart')}
-              className="w-full h-12 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-between px-4 shadow-md active:scale-98"
-              style={{
-                backgroundColor: 'var(--brand-primary, #2563EB)',
-                color: 'var(--brand-primary-text, #FFFFFF)',
-              }}
-            >
-              <div className="flex items-center gap-2 text-xs">
-                <ShoppingCart className="w-4 h-4" />
-                <span>Lihat Pesanan ({totalCartCount} item)</span>
-              </div>
-              <span className="text-sm font-extrabold tabular-nums">
-                {formatRupiah(totalCartAmount)}
-              </span>
-            </button>
+        {/* Floating Mobile Cart & Active Orders Bar */}
+        {mobileView === 'catalog' && (cartItems.length > 0 || heldOrders.length > 0) && (
+          <div className="p-3 bg-white border-t border-slate-200 flex items-center gap-2">
+            {heldOrders.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsHoldModalOpen(true)}
+                className={`h-12 px-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs inline-flex items-center justify-center gap-2 shadow-xs shrink-0 ${
+                  cartItems.length === 0 ? 'w-full' : ''
+                }`}
+              >
+                <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span>Pesanan Aktif ({heldOrders.length})</span>
+              </button>
+            )}
+
+            {cartItems.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setMobileView('cart')}
+                className="flex-1 h-12 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-between px-4 shadow-md active:scale-98"
+                style={{
+                  backgroundColor: 'var(--brand-primary, #2563EB)',
+                  color: 'var(--brand-primary-text, #FFFFFF)',
+                }}
+              >
+                <div className="flex items-center gap-2 text-xs">
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>Lihat Pesanan ({totalCartCount} item)</span>
+                </div>
+                <span className="text-sm font-extrabold tabular-nums">
+                  {formatRupiah(totalCartAmount)}
+                </span>
+              </button>
+            )}
           </div>
         )}
 
@@ -144,6 +185,12 @@ export const POSTerminal: React.FC = () => {
           setCompletedOrder(null);
           setMobileView('catalog');
         }}
+      />
+
+      {/* Active Orders Modal */}
+      <HoldOrdersModal
+        isOpen={isHoldModalOpen}
+        onClose={() => setIsHoldModalOpen(false)}
       />
     </div>
   );

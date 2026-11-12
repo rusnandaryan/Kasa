@@ -29,7 +29,7 @@ export const Navigation: React.FC = () => {
         : 'Katalog',
       icon: Layers,
     },
-    { id: 'cashflow', label: 'Arus Kas', icon: ArrowLeftRight },
+    { id: 'cashflow', label: 'Cash Flow', icon: ArrowLeftRight },
     { id: 'dashboard', label: 'Ringkasan Laba', icon: TrendingUp, roleBadge: 'Admin' },
     { id: 'staff', label: 'Staf & Akses', icon: Users, roleBadge: 'Admin' },
     { id: 'settings', label: 'Branding Toko', icon: Palette, roleBadge: 'Pemilik' },
