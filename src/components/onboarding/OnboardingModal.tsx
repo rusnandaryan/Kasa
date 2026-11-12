@@ -237,16 +237,16 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
           {step === 4 && (
             <div className="space-y-4">
               <div className="text-center space-y-1">
-                <h4 className="text-base font-bold text-slate-900">Setel 6-Digit PIN Kasir</h4>
+                <h4 className="text-base font-bold text-slate-900">Setel 6-Digit PIN Pengaman</h4>
                 <p className="text-xs text-slate-600">
-                  Untuk pergantian shift cepat dan pengamanan transaksi void/hapus.
+                  Untuk membuka layar kunci dan otorisasi pembatalan/diskon transaksi.
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${allMembers.some((m) => m.role === 'cashier') ? 'grid-cols-2' : 'grid-cols-1 max-w-xs mx-auto'}`}>
                 <div className="p-3 rounded-2xl bg-purple-50 border border-purple-200 space-y-1.5">
                   <label className="block text-[11px] font-bold text-purple-900 uppercase">
-                    PIN Owner / Admin
+                    PIN Pemilik Aplikasi
                   </label>
                   <input
                     type="password"
@@ -255,22 +255,24 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onClos
                     onChange={(e) => setOwnerPin(e.target.value.replace(/[^0-9]/g, ''))}
                     className="w-full h-10 px-3 rounded-xl border border-purple-300 text-center font-mono font-bold tracking-widest text-sm bg-white"
                   />
-                  <p className="text-[10px] text-purple-700">Untuk akses laporan & pengaturan</p>
+                  <p className="text-[10px] text-purple-700">Untuk otorisasi penuh &amp; pengaturan</p>
                 </div>
 
-                <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 space-y-1.5">
-                  <label className="block text-[11px] font-bold text-blue-900 uppercase">
-                    PIN Staf Kasir
-                  </label>
-                  <input
-                    type="password"
-                    maxLength={6}
-                    value={cashierPin}
-                    onChange={(e) => setCashierPin(e.target.value.replace(/[^0-9]/g, ''))}
-                    className="w-full h-10 px-3 rounded-xl border border-blue-300 text-center font-mono font-bold tracking-widest text-sm bg-white"
-                  />
-                  <p className="text-[10px] text-blue-700">Untuk login shift & kas laci</p>
-                </div>
+                {allMembers.some((m) => m.role === 'cashier') && (
+                  <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 space-y-1.5">
+                    <label className="block text-[11px] font-bold text-blue-900 uppercase">
+                      PIN Staf Kasir
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={6}
+                      value={cashierPin}
+                      onChange={(e) => setCashierPin(e.target.value.replace(/[^0-9]/g, ''))}
+                      className="w-full h-10 px-3 rounded-xl border border-blue-300 text-center font-mono font-bold tracking-widest text-sm bg-white"
+                    />
+                    <p className="text-[10px] text-blue-700">Untuk membuka layar shift kasir</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

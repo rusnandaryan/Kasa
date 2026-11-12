@@ -6,7 +6,7 @@ import { Delete, ShieldAlert } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 
 export const PinLockScreen: React.FC = () => {
-  const { branding, unlockWithPin } = useAppStore();
+  const { branding, unlockWithPin, logout } = useAppStore();
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -152,11 +152,18 @@ export const PinLockScreen: React.FC = () => {
           </button>
         </div>
 
-        {/* Demo PIN hint for tester */}
-        <div className="mt-6 pt-4 border-t border-slate-100 w-full text-center">
+        {/* Session switch/logout action */}
+        <div className="mt-6 pt-4 border-t border-slate-100 w-full text-center space-y-2">
           <p className="text-[11px] text-slate-600">
-            PIN Demo Default: Owner <strong className="text-slate-800">123456</strong> | Kasir <strong className="text-slate-800">112233</strong>
+            Masukkan 6-digit PIN akun Anda untuk membuka layar kasir.
           </p>
+          <button
+            type="button"
+            onClick={logout}
+            className="text-xs font-semibold text-rose-700 hover:text-rose-800 hover:underline"
+          >
+            Keluar &amp; Login dengan ID Lain
+          </button>
         </div>
       </div>
     </div>

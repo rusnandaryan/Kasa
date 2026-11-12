@@ -9,7 +9,7 @@ import {
   Receipt,
   User,
   Hash,
-  PauseCircle,
+  BookmarkPlus,
   Tag,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
@@ -72,7 +72,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
           <div className="flex items-center gap-2">
             <Receipt className="w-5 h-5 text-blue-600" />
             <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-              Pesanan Aktif
+              Daftar Pesanan
             </h3>
             <span className="text-xs px-2 py-0.5 rounded-md font-bold bg-blue-100 text-blue-700">
               {cartItems.reduce((acc, item) => acc + item.qty, 0)} item
@@ -151,7 +151,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
             <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
               <Receipt className="w-7 h-7" />
             </div>
-            <p className="text-sm font-bold text-slate-700">Keranjang Masih Kosong</p>
+            <p className="text-sm font-bold text-slate-700">Daftar Pesanan Masih Kosong</p>
             <p className="text-xs text-slate-500 mt-1 max-w-[200px]">
               Ketuk {branding.customTerminology.itemLabel.toLowerCase()} di sebelah kiri untuk menambahkan pesanan.
             </p>
@@ -214,9 +214,15 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
 
                   <button
                     type="button"
+                    disabled={
+                      item.maxStock !== undefined &&
+                      cartItems
+                        .filter((i) => i.productId === item.productId)
+                        .reduce((sum, i) => sum + i.qty, 0) >= item.maxStock
+                    }
                     onClick={() => updateCartItemQty(item.id, item.qty + (item.allowDecimalQty ? 0.5 : 1))}
                     aria-label={`Tambah jumlah ${item.name}`}
-                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -237,8 +243,8 @@ export const CartPanel: React.FC<CartPanelProps> = ({ onOpenPayment }) => {
               onClick={holdCurrentOrder}
               className="flex-1 inline-flex items-center justify-center gap-1.5 h-9 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold transition-colors"
             >
-              <PauseCircle className="w-3.5 h-3.5" />
-              <span>Parkir Pesanan</span>
+              <BookmarkPlus className="w-3.5 h-3.5" />
+              <span>Simpan Pesanan</span>
             </button>
 
             <button

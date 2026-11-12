@@ -6,6 +6,7 @@ import { initializeDatabase } from '@/core/db';
 import { Header } from '@/components/layout/Header';
 import { Navigation } from '@/components/layout/Navigation';
 import { PinLockScreen } from '@/components/layout/PinLockScreen';
+import { LoginScreen } from '@/components/auth/LoginScreen';
 import { POSTerminal } from '@/components/pos/POSTerminal';
 import { CatalogManager } from '@/components/catalog/CatalogManager';
 import { CashflowManager } from '@/components/cashflow/CashflowManager';
@@ -20,6 +21,7 @@ import { ShortcutModal } from '@/components/pos/ShortcutModal';
 export default function Home() {
   const {
     isInitializing,
+    isAuthenticated,
     initStore,
     activeTab,
     isPinLocked,
@@ -76,6 +78,10 @@ export default function Home() {
         <p className="text-xs text-slate-300 mt-1">Memuat database lokal & identitas brand...</p>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginScreen />;
   }
 
   return (

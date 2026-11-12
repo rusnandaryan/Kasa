@@ -182,6 +182,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       await db.products.add(newProd);
     }
 
+    window.dispatchEvent(new CustomEvent('kasa:products-updated'));
     onSaved();
     onClose();
   };

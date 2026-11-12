@@ -203,6 +203,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         }
       }
 
+      window.dispatchEvent(new CustomEvent('kasa:products-updated'));
       clearCart();
       sound.playSuccess();
       setIsSubmitting(false);

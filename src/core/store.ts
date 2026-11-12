@@ -16,6 +16,13 @@ import {
   getSampleCatalog,
 } from './db';
 import { adjustColorDarker, getContrastingTextColor } from './formatters';
+import {
+  canAccessTab,
+  clearAuthSession,
+  loadAuthSession,
+  saveAuthSession,
+  verifyPassword,
+} from './auth';
 
 export type ActiveTab = 'pos' | 'catalog' | 'cashflow' | 'dashboard' | 'staff' | 'settings';
 
@@ -27,13 +34,18 @@ interface AppState {
   updateBranding: (updates: Partial<StoreBranding>) => Promise<void>;
   applyThemeCssVars: (colorHex: string) => void;
 
-  // Active Member & RBAC
+  // Active Member, Auth & RBAC
+  isAuthenticated: boolean;
   activeMember: StoreMember;
   allMembers: StoreMember[];
   isPinLocked: boolean;
   activeTab: ActiveTab;
+  loginWithCredentials: (
+    username: string,
+    password: string
+  ) => Promise<{ ok: boolean; error?: string }>;
+  logout: () => void;
   setActiveTab: (tab: ActiveTab) => void;
-  switchMember: (memberId: string) => void;
   unlockWithPin: (pin: string) => boolean;
   lockApp: () => void;
   reloadMembers: () => Promise<void>;
@@ -83,6 +95,7 @@ interface AppState {
 export const useAppStore = create<AppState>((set, get) => ({
   branding: DEFAULT_STORE_BRANDING,
   isInitializing: true,
+  isAuthenticated: false,
   activeMember: DEFAULT_MEMBERS[0],
   allMembers: DEFAULT_MEMBERS,
   isPinLocked: false,
@@ -120,17 +133,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       // Read store from db
       const store = await db.stores.get(DEFAULT_STORE_ID);
-      const members = await db.members.toArray();
+      let members = await db.members.toArray();
+      if (members.length === 0) {
+        await db.members.bulkAdd(DEFAULT_MEMBERS);
+        members = DEFAULT_MEMBERS;
+      }
       const currentShift = await db.shifts.where({ status: 'open' }).first();
 
       const finalBranding = store || DEFAULT_STORE_BRANDING;
-      const finalMembers = members.length > 0 ? members : DEFAULT_MEMBERS;
-      const initialMember = finalMembers[0];
+      const savedMemberId = loadAuthSession();
+      const restoredMember = savedMemberId
+        ? members.find((m) => m.id === savedMemberId && m.isActive)
+        : undefined;
+      if (savedMemberId && !restoredMember) {
+        clearAuthSession();
+      }
 
       set({
         branding: finalBranding,
-        allMembers: finalMembers,
-        activeMember: initialMember,
+        allMembers: members,
+        activeMember: restoredMember || members[0],
+        isAuthenticated: Boolean(restoredMember),
+        activeTab: 'pos',
         activeShift: currentShift || null,
         isInitializing: false,
       });
@@ -165,33 +189,81 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
+  loginWithCredentials: async (username: string, password: string) => {
+    let members = await db.members.toArray();
+    if (members.length === 0) {
+      members = DEFAULT_MEMBERS;
+    }
+
+    const normalizedId = username.trim().toLowerCase();
+    const user = members.find((m) => (m.username || '').toLowerCase() === normalizedId);
+
+    if (!user || !verifyPassword(password, user.passwordHash)) {
+      return {
+        ok: false,
+        error: 'ID atau password salah. Periksa kembali kredensial Anda.',
+      };
+    }
+
+    if (!user.isActive) {
+      return {
+        ok: false,
+        error: 'Akun ini sedang dinonaktifkan. Hubungi Pemilik Aplikasi atau Admin Toko.',
+      };
+    }
+
+    saveAuthSession(user.id);
+    set({
+      allMembers: members,
+      activeMember: user,
+      isAuthenticated: true,
+      isPinLocked: false,
+      activeTab: 'pos',
+    });
+
+    await db.auditLogs.add({
+      id: `audit-${Date.now()}`,
+      storeId: get().branding.id,
+      actorMemberId: user.id,
+      actorName: user.fullName,
+      action: 'USER_LOGIN',
+      description: `Masuk ke sistem sebagai ${user.role} (${user.username})`,
+      createdAt: new Date().toISOString(),
+    });
+
+    return { ok: true };
+  },
+
+  logout: () => {
+    clearAuthSession();
+    set({
+      isAuthenticated: false,
+      isPinLocked: false,
+      activeTab: 'pos',
+    });
+    get().clearCart();
+  },
+
   setActiveTab: (tab: ActiveTab) => {
-    // RBAC check: cashier cannot view reports/dashboard or settings directly without admin override
     const { activeMember } = get();
-    if (activeMember.role === 'cashier' && (tab === 'dashboard' || tab === 'settings' || tab === 'staff')) {
-      alert('Akses Terbatas: Halaman ini hanya dapat diakses oleh Owner/Admin.');
+    if (!canAccessTab(activeMember.role, tab)) {
+      alert(
+        tab === 'settings'
+          ? 'Akses Terbatas: Branding & Pengaturan Toko hanya dapat diakses oleh Pemilik Aplikasi.'
+          : 'Akses Terbatas: Anda tidak memiliki izin untuk membuka modul ini.'
+      );
       return;
     }
     set({ activeTab: tab });
   },
 
-  switchMember: (memberId: string) => {
-    const target = get().allMembers.find((m) => m.id === memberId);
-    if (!target) return;
-
-    set({ activeMember: target });
-    // If cashier, ensure they land on POS
-    if (target.role === 'cashier' && (get().activeTab === 'dashboard' || get().activeTab === 'settings')) {
-      set({ activeTab: 'pos' });
-    }
-  },
-
   unlockWithPin: (pin: string) => {
-    const { activeMember, allMembers } = get();
-    // Check if PIN matches active member OR any admin/owner
+    const { allMembers, activeTab } = get();
     const match = allMembers.find((m) => m.pinCode === pin && m.isActive);
     if (match) {
-      set({ isPinLocked: false, activeMember: match });
+      saveAuthSession(match.id);
+      const nextTab = canAccessTab(match.role, activeTab) ? activeTab : 'pos';
+      set({ isPinLocked: false, activeMember: match, activeTab: nextTab });
       return true;
     }
     return false;
@@ -203,7 +275,19 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   reloadMembers: async () => {
     const members = await db.members.toArray();
-    set({ allMembers: members });
+    const { activeMember, isAuthenticated } = get();
+    const updatedSelf = members.find((m) => m.id === activeMember.id);
+
+    if (isAuthenticated && (!updatedSelf || !updatedSelf.isActive)) {
+      set({ allMembers: members });
+      get().logout();
+      return;
+    }
+
+    set({
+      allMembers: members,
+      activeMember: updatedSelf || activeMember,
+    });
   },
 
   refreshShift: async () => {
@@ -221,7 +305,20 @@ export const useAppStore = create<AppState>((set, get) => ({
   setApplyService: (val: boolean) => set({ applyService: val }),
 
   addToCart: (product, selectedVariants = [], notes = '', customPrice) => {
+    if (!product.isAvailable || (product.trackInventory && product.stockQty <= 0)) {
+      return;
+    }
+
     const { cartItems } = get();
+    if (product.trackInventory) {
+      const totalInCartForProduct = cartItems
+        .filter((item) => item.productId === product.id)
+        .reduce((sum, item) => sum + item.qty, 0);
+      if (totalInCartForProduct + 1 > product.stockQty) {
+        return;
+      }
+    }
+
     const effectiveUnitPrice = customPrice !== undefined ? customPrice : product.sellingPrice;
     const variantsDelta = selectedVariants.reduce((sum, v) => sum + v.priceDelta, 0);
     const itemUnitPrice = effectiveUnitPrice + variantsDelta;
@@ -235,6 +332,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         item.selectedVariants.map((v) => `${v.groupName}:${v.optionName}`).sort().join('|') === variantKey
     );
 
+    const maxStock = product.trackInventory ? product.stockQty : undefined;
+
     if (existingIndex >= 0) {
       const updated = [...cartItems];
       const current = updated[existingIndex];
@@ -243,6 +342,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         ...current,
         qty: newQty,
         subtotal: newQty * itemUnitPrice,
+        maxStock,
       };
       set({ cartItems: updated });
     } else {
@@ -258,6 +358,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         selectedVariants,
         itemNotes: notes,
         subtotal: itemUnitPrice,
+        maxStock,
       };
       set({ cartItems: [...cartItems, newItem] });
     }
@@ -269,12 +370,30 @@ export const useAppStore = create<AppState>((set, get) => ({
       get().removeCartItem(cartItemId);
       return;
     }
+
+    const targetItem = cartItems.find((i) => i.id === cartItemId);
+    if (!targetItem) return;
+
+    let clampedQty = newQty;
+    if (targetItem.maxStock !== undefined) {
+      const otherLinesQty = cartItems
+        .filter((i) => i.productId === targetItem.productId && i.id !== cartItemId)
+        .reduce((sum, i) => sum + i.qty, 0);
+      const maxForThisLine = Math.max(0, targetItem.maxStock - otherLinesQty);
+      if (clampedQty > maxForThisLine) {
+        clampedQty = maxForThisLine;
+      }
+      if (clampedQty <= 0) {
+        return;
+      }
+    }
+
     const updated = cartItems.map((item) => {
       if (item.id === cartItemId) {
         return {
           ...item,
-          qty: newQty,
-          subtotal: Math.round(newQty * item.unitPrice),
+          qty: clampedQty,
+          subtotal: Math.round(clampedQty * item.unitPrice),
         };
       }
       return item;

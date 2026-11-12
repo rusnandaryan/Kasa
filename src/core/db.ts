@@ -10,6 +10,7 @@ import {
   AuditLog,
   BusinessType,
 } from './types';
+import { hashPassword } from './auth';
 
 export class KasaDexieDB extends Dexie {
   stores!: Table<StoreBranding, string>;
@@ -38,6 +39,31 @@ export class KasaDexieDB extends Dexie {
       categories: 'id, storeId, sortOrder, isActive',
       products: 'id, storeId, categoryId, name, skuBarcode, isAvailable, isArchived, [isArchived+isAvailable]',
     });
+
+    this.version(3)
+      .stores({
+        members: 'id, storeId, role, pinCode, username',
+      })
+      .upgrade(async (tx) => {
+        const members = await tx.table('members').toArray();
+        for (const m of members) {
+          const updates: Record<string, string> = {};
+          if (!m.username) {
+            updates.username =
+              m.role === 'owner'
+                ? 'owner'
+                : `${m.role}-${String(m.id).slice(-4)}`;
+          }
+          if (!m.passwordHash) {
+            updates.passwordHash = hashPassword(
+              m.role === 'owner' ? 'owner123' : m.pinCode || '123456'
+            );
+          }
+          if (Object.keys(updates).length > 0) {
+            await tx.table('members').update(m.id, updates);
+          }
+        }
+      });
   }
 }
 
@@ -76,7 +102,9 @@ export const DEFAULT_MEMBERS: StoreMember[] = [
   {
     id: 'member-owner-01',
     storeId: DEFAULT_STORE_ID,
-    fullName: 'Raka (Owner/Admin)',
+    fullName: 'Pemilik Aplikasi',
+    username: 'owner',
+    passwordHash: hashPassword('owner123'),
     role: 'owner',
     pinCode: '123456',
     isActive: true,
@@ -86,22 +114,6 @@ export const DEFAULT_MEMBERS: StoreMember[] = [
       canViewDailyRevenue: true,
       canVoidOrder: true,
       canManageCatalog: true,
-      canManageExpenses: true,
-    },
-  },
-  {
-    id: 'member-cashier-01',
-    storeId: DEFAULT_STORE_ID,
-    fullName: 'Budi (Kasir Shift Pagi)',
-    role: 'cashier',
-    pinCode: '112233',
-    isActive: true,
-    permissions: {
-      canDiscount: false,
-      canOpenPrice: false,
-      canViewDailyRevenue: true,
-      canVoidOrder: false,
-      canManageCatalog: false,
       canManageExpenses: true,
     },
   },

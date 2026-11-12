@@ -10,7 +10,7 @@ import { VariantModal } from './VariantModal';
 import { sound } from '@/core/sound';
 
 export const ProductGrid: React.FC = () => {
-  const { branding, addToCart } = useAppStore();
+  const { branding, addToCart, cartItems } = useAppStore();
   const [categories, setCategories] = useState<Category[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
@@ -31,7 +31,7 @@ export const ProductGrid: React.FC = () => {
       .sort((a, b) => a.sortOrder - b.sortOrder);
 
     const allProds = await db.products.toArray();
-    const prods = allProds.filter((p) => !p.isArchived && p.isAvailable);
+    const prods = allProds.filter((p) => !p.isArchived);
 
     setCategories(cats);
     setProducts(prods);
@@ -39,6 +39,11 @@ export const ProductGrid: React.FC = () => {
 
   useEffect(() => {
     loadData();
+
+    const handleProductsUpdated = () => {
+      loadData();
+    };
+    window.addEventListener('kasa:products-updated', handleProductsUpdated);
 
     // Keyboard shortcuts (F2 for search focus)
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -48,7 +53,10 @@ export const ProductGrid: React.FC = () => {
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('kasa:products-updated', handleProductsUpdated);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
   // Filter products by category and search
@@ -64,7 +72,16 @@ export const ProductGrid: React.FC = () => {
     });
   }, [products, selectedCategoryId, searchQuery]);
 
+  const getInCartQty = (productId: string) =>
+    cartItems.filter((item) => item.productId === productId).reduce((sum, item) => sum + item.qty, 0);
+
+  const isProductOutOfStock = (product: Product) =>
+    !product.isAvailable || (product.trackInventory && product.stockQty <= 0);
+
   const handleProductClick = (product: Product) => {
+    if (isProductOutOfStock(product)) return;
+    if (product.trackInventory && getInCartQty(product.id) >= product.stockQty) return;
+
     if ((product.variantsConfig && product.variantsConfig.length > 0) || product.isOpenPrice) {
       setSelectedProductForModal(product);
     } else {
@@ -78,6 +95,14 @@ export const ProductGrid: React.FC = () => {
     if (!barcodeInput.trim()) return;
     const match = products.find((p) => p.skuBarcode === barcodeInput.trim());
     if (match) {
+      if (isProductOutOfStock(match)) {
+        setBarcodeError(`Stok "${match.name}" sedang habis dan tidak dapat dipilih.`);
+        return;
+      }
+      if (match.trackInventory && getInCartQty(match.id) >= match.stockQty) {
+        setBarcodeError(`Jumlah "${match.name}" di daftar pesanan sudah mencapai batas stok.`);
+        return;
+      }
       handleProductClick(match);
       setBarcodeError('');
       setBarcodeInput('');
@@ -230,20 +255,37 @@ export const ProductGrid: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
             {filteredProducts.map((product) => {
               const hasVariants = product.variantsConfig && product.variantsConfig.length > 0;
+              const isOutOfStock = isProductOutOfStock(product);
+              const inCartQty = getInCartQty(product.id);
+              const isCartLimitReached =
+                !isOutOfStock && product.trackInventory && inCartQty >= product.stockQty;
+              const isDisabled = isOutOfStock || isCartLimitReached;
               const isLowStock =
-                product.trackInventory && product.stockQty <= product.lowStockThreshold;
+                product.trackInventory && !isOutOfStock && product.stockQty <= product.lowStockThreshold;
 
               return (
                 <button
                   key={product.id}
                   type="button"
+                  disabled={isDisabled}
+                  aria-disabled={isDisabled}
                   onClick={() => handleProductClick(product)}
-                  className="group relative bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between text-left transition-all duration-150 active:scale-[0.98] min-h-[110px] sm:min-h-[120px]"
+                  className={`group relative rounded-2xl p-3 sm:p-3.5 flex flex-col justify-between text-left transition-all duration-150 min-h-[110px] sm:min-h-[120px] border ${
+                    isDisabled
+                      ? 'bg-slate-100 border-slate-200 opacity-65 cursor-not-allowed'
+                      : 'bg-white border-slate-200 hover:border-blue-400 hover:shadow-md active:scale-[0.98]'
+                  }`}
                 >
                   {/* Top: Name & Badges */}
                   <div>
                     <div className="flex items-start justify-between gap-1 mb-1">
-                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors line-clamp-2 leading-snug">
+                      <h4
+                        className={`text-xs sm:text-sm font-bold transition-colors line-clamp-2 leading-snug ${
+                          isDisabled
+                            ? 'text-slate-600'
+                            : 'text-slate-900 group-hover:text-blue-600'
+                        }`}
+                      >
                         {product.name}
                       </h4>
                       {hasVariants && (
@@ -262,12 +304,19 @@ export const ProductGrid: React.FC = () => {
                   </div>
 
                   {/* Bottom: Price & Stock */}
-                  <div className="mt-2 pt-2 border-t border-slate-100 flex items-end justify-between">
+                  <div className="mt-2 pt-2 border-t border-slate-100 flex items-end justify-between gap-2">
                     <div>
-                      <p className="text-xs sm:text-sm font-extrabold text-slate-900 tabular-nums">
+                      <p className={`text-xs sm:text-sm font-extrabold tabular-nums ${isDisabled ? 'text-slate-600' : 'text-slate-900'}`}>
                         {product.isOpenPrice ? 'Harga Fleksibel' : formatRupiah(product.sellingPrice)}
                       </p>
-                      {product.trackInventory && (
+                      {isOutOfStock ? (
+                        <p className="text-[10px] font-bold text-rose-700 flex items-center gap-1 mt-0.5">
+                          <AlertCircle className="w-3 h-3 text-rose-600" />
+                          <span>
+                            {product.trackInventory ? `Stok: 0 ${product.unitName}` : 'Sedang Habis'}
+                          </span>
+                        </p>
+                      ) : product.trackInventory ? (
                         <p
                           className={`text-[10px] font-medium flex items-center gap-1 mt-0.5 ${
                             isLowStock ? 'text-amber-600 font-bold' : 'text-slate-500'
@@ -276,12 +325,22 @@ export const ProductGrid: React.FC = () => {
                           {isLowStock && <AlertCircle className="w-3 h-3 text-amber-500" />}
                           <span>Stok: {product.stockQty} {product.unitName}</span>
                         </p>
-                      )}
+                      ) : null}
                     </div>
 
-                    <div className="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-600 flex items-center justify-center transition-colors">
-                      <Plus className="w-4 h-4" />
-                    </div>
+                    {isOutOfStock ? (
+                      <span className="px-2 py-0.5 rounded-md bg-rose-100 border border-rose-200 text-rose-800 text-[10px] font-bold shrink-0">
+                        Stok Habis
+                      </span>
+                    ) : isCartLimitReached ? (
+                      <span className="px-2 py-0.5 rounded-md bg-amber-100 border border-amber-200 text-amber-800 text-[10px] font-bold shrink-0">
+                        Maks. Stok
+                      </span>
+                    ) : (
+                      <div className="w-7 h-7 rounded-xl bg-slate-100 group-hover:bg-blue-600 group-hover:text-white text-slate-600 flex items-center justify-center transition-colors shrink-0">
+                        <Plus className="w-4 h-4" />
+                      </div>
+                    )}
                   </div>
                 </button>
               );

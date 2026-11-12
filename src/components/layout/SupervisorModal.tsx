@@ -134,7 +134,7 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
         </div>
 
         <p className="text-[11px] text-slate-600 mt-4 text-center">
-          Gunakan PIN Admin (Default: <strong className="text-slate-800">123456</strong>)
+          Gunakan 6-Digit PIN Pemilik Aplikasi atau Admin Toko
         </p>
       </div>
     </div>

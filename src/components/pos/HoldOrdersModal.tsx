@@ -33,13 +33,13 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-amber-600" />
             <h3 className="text-base font-bold text-slate-900">
-              Daftar Pesanan Diparkir ({heldOrders.length})
+              Pesanan Aktif ({heldOrders.length})
             </h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup modal pesanan diparkir"
+            aria-label="Tutup modal pesanan aktif"
             className="p-1 text-slate-500 hover:text-slate-700 rounded-full hover:bg-slate-100"
           >
             <X className="w-5 h-5" />
@@ -49,7 +49,7 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
         <div className="space-y-2.5 max-h-[60vh] overflow-y-auto">
           {heldOrders.length === 0 ? (
             <p className="text-xs text-slate-500 text-center py-8">
-              Tidak ada pesanan yang sedang diparkir.
+              Tidak ada pesanan aktif yang tersimpan.
             </p>
           ) : (
             heldOrders.map((h) => (
@@ -67,7 +67,7 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-600">
-                    {h.items.length} item • Diparkir pukul {formatTimeOnly(h.heldAt)}
+                    {h.items.length} item • Disimpan pukul {formatTimeOnly(h.heldAt)}
                   </p>
                   <p className="text-xs font-extrabold text-slate-900 tabular-nums">
                     {formatRupiah(h.total)}
@@ -90,9 +90,9 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
                   <button
                     type="button"
                     onClick={() => deleteHeldOrder(h.id)}
-                    aria-label="Batalkan pesanan diparkir"
+                    aria-label="Hapus pesanan aktif"
                     className="p-1.5 text-slate-500 hover:text-rose-600 rounded-lg hover:bg-rose-50"
-                    title="Batalkan Pesanan Ini"
+                    title="Hapus Pesanan Ini"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

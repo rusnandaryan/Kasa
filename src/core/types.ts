@@ -41,6 +41,8 @@ export interface StoreMember {
   id: string;
   storeId: string;
   fullName: string;
+  username: string;
+  passwordHash: string;
   role: UserRole;
   pinCode: string; // 6-digit PIN
   isActive: boolean;
@@ -112,6 +114,7 @@ export interface CartItem {
   }[];
   itemNotes?: string;
   subtotal: number;
+  maxStock?: number;
 }
 
 export interface OrderItemSnap {
@@ -195,7 +198,16 @@ export interface AuditLog {
   storeId: string;
   actorMemberId: string;
   actorName: string;
-  action: 'ORDER_VOIDED' | 'PRICE_OVERRIDDEN' | 'CASHFLOW_DELETED' | 'BRAND_UPDATED' | 'SHIFT_CLOSED';
+  action:
+    | 'ORDER_VOIDED'
+    | 'PRICE_OVERRIDDEN'
+    | 'CASHFLOW_DELETED'
+    | 'BRAND_UPDATED'
+    | 'SHIFT_CLOSED'
+    | 'USER_LOGIN'
+    | 'STAFF_CREATED'
+    | 'STAFF_UPDATED'
+    | 'STAFF_STATUS_CHANGED';
   description: string;
   metadata?: Record<string, unknown>;
   createdAt: string;
