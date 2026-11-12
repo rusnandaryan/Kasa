@@ -110,6 +110,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-slate-100 flex justify-center">
           <div
             ref={printAreaRef}
+            id="report-printable"
             className="bg-white shadow-md border border-slate-200 p-6 sm:p-8 rounded-xl max-w-xl w-full space-y-6 text-slate-800 text-xs"
           >
             {/* Kop Surat Berlogo Toko UMKM */}

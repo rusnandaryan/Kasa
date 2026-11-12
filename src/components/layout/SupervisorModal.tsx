@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ShieldCheck, X, Delete } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 
@@ -23,20 +23,7 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onCancel();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onCancel]);
-
-  if (!isOpen) return null;
-
-  const handleKeyClick = (digit: string) => {
+  const handleKeyClick = useCallback((digit: string) => {
     if (pin.length < 6) {
       const nextPin = pin + digit;
       setPin(nextPin);
@@ -56,12 +43,32 @@ export const SupervisorModal: React.FC<SupervisorModalProps> = ({
         }
       }
     }
-  };
+  }, [pin, allMembers, onSuccess]);
 
-  const handleBackspace = () => {
+  const handleBackspace = useCallback(() => {
     setPin((prev) => prev.slice(0, -1));
     setErrorMsg('');
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onCancel();
+      } else if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        handleKeyClick(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleBackspace();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onCancel, handleKeyClick, handleBackspace]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4">

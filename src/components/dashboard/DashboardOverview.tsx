@@ -289,31 +289,38 @@ export const DashboardOverview: React.FC = () => {
               Belum ada pergerakan kas pada periode ini.
             </div>
           ) : (
-            <div className="space-y-3">
-              <div className="h-7 w-full bg-slate-100 rounded-xl overflow-hidden flex shadow-inner">
-                <div
-                  style={{
-                    width: `${Math.round((totalRevenue / (totalRevenue + totalExpenses)) * 100)}%`,
-                  }}
-                  className="bg-emerald-500 transition-all duration-500 h-full flex items-center justify-center text-[10px] font-bold text-white tabular-nums"
-                >
-                  {Math.round((totalRevenue / (totalRevenue + totalExpenses)) * 100)}%
-                </div>
-                <div
-                  style={{
-                    width: `${Math.round((totalExpenses / (totalRevenue + totalExpenses)) * 100)}%`,
-                  }}
-                  className="bg-rose-500 transition-all duration-500 h-full flex items-center justify-center text-[10px] font-bold text-white tabular-nums"
-                >
-                  {Math.round((totalExpenses / (totalRevenue + totalExpenses)) * 100)}%
-                </div>
-              </div>
+            (() => {
+              const totalMovement = totalRevenue + totalExpenses;
+              const incomePct = Math.round((totalRevenue / totalMovement) * 100);
+              const expensePct = 100 - incomePct;
+              return (
+                <div className="space-y-3">
+                  <div className="h-7 w-full bg-slate-100 rounded-xl overflow-hidden flex shadow-inner">
+                    {incomePct > 0 && (
+                      <div
+                        style={{ width: `${incomePct}%` }}
+                        className="bg-emerald-600 transition-all duration-500 h-full flex items-center justify-center text-[10px] font-bold text-white tabular-nums overflow-hidden"
+                      >
+                        {incomePct >= 8 ? `${incomePct}%` : ''}
+                      </div>
+                    )}
+                    {expensePct > 0 && (
+                      <div
+                        style={{ width: `${expensePct}%` }}
+                        className="bg-rose-600 transition-all duration-500 h-full flex items-center justify-center text-[10px] font-bold text-white tabular-nums overflow-hidden"
+                      >
+                        {expensePct >= 8 ? `${expensePct}%` : ''}
+                      </div>
+                    )}
+                  </div>
 
-              <div className="flex justify-between text-xs font-bold tabular-nums">
-                <span className="text-emerald-700">Uang Masuk: {formatRupiah(totalRevenue)}</span>
-                <span className="text-rose-700">Uang Keluar: {formatRupiah(totalExpenses)}</span>
-              </div>
-            </div>
+                  <div className="flex justify-between text-xs font-bold tabular-nums">
+                    <span className="text-emerald-700">Uang Masuk ({incomePct}%): {formatRupiah(totalRevenue)}</span>
+                    <span className="text-rose-700">Uang Keluar ({expensePct}%): {formatRupiah(totalExpenses)}</span>
+                  </div>
+                </div>
+              );
+            })()
           )}
         </div>
 

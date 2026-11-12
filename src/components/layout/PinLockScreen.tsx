@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Delete, ShieldAlert } from 'lucide-react';
 import { useAppStore } from '@/core/store';
@@ -10,7 +10,7 @@ export const PinLockScreen: React.FC = () => {
   const [pin, setPin] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleKeyClick = (digit: string) => {
+  const handleKeyClick = useCallback((digit: string) => {
     if (pin.length < 6) {
       const nextPin = pin + digit;
       setPin(nextPin);
@@ -24,17 +24,35 @@ export const PinLockScreen: React.FC = () => {
         }
       }
     }
-  };
+  }, [pin, unlockWithPin]);
 
-  const handleBackspace = () => {
+  const handleBackspace = useCallback(() => {
     setPin((prev) => prev.slice(0, -1));
     setErrorMsg('');
-  };
+  }, []);
 
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setPin('');
     setErrorMsg('');
-  };
+  }, []);
+
+  // Physical Keyboard PIN Input (0-9, Backspace, Escape)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        handleKeyClick(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handleBackspace();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleKeyClick, handleBackspace, handleClear]);
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/90 flex items-center justify-center p-4">

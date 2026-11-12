@@ -20,3 +20,4 @@ Written against: 9250b3a
 ## Improve first
 > [!IMPORTANT]
 > **Temuan #1 (Input Uang Fisik Laci Kasir)** adalah perubahan dengan dampak tertinggi. Rekonsiliasi tutup shift (*blind cash drop*) adalah momen paling rawan sengketa antara kasir dan pemilik usaha. Bantuan konfirmasi pembacaan nominal langsung saat mengetik nominal uang fisik (misal: membedakan Rp 150.000 vs Rp 1.500.000) mencegah kesalahan input manusiawi dan menjaga akurasi pembukuan kas UMKM.
+

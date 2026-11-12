@@ -64,3 +64,33 @@ Evaluated At: 2026-11-11
 - **Impact:** Default browser selection color and caret failed to reflect brand palette.
 - **Resolution:** Added `::selection` (tinted with `--brand-primary-light` and `--brand-primary-dark`) and `input, textarea { caret-color: var(--brand-primary); }`.
 
+---
+
+## 5. Production Hardening & Final Polish Pass (2026-11-12)
+
+### [P0 Resolved] Print Isolation (`@media print`) untuk Struk Thermal & Laporan PDF
+- **Location:** `src/app/globals.css`, `src/components/dashboard/ExportReportModal.tsx`
+- **Impact:** Tanpa aturan `@media print`, `window.print()` mencetak seluruh latar belakang modal, navigasi, dan grid produk ke kertas thermal/PDF.
+- **Resolution:** Menambahkan aturan `@media print` yang mengisolasi penuh `#thermal-receipt-printable` dan `#report-printable`, menghilangkan border/shadow modal, dan memastikan latar putih bersih saat dicetak.
+
+### [P1 Resolved] Carryover State Reset pada `PaymentModal`
+- **Location:** `src/components/pos/PaymentModal.tsx`
+- **Impact:** Input nominal uang diterima dan metode pembayaran pelanggan sebelumnya terbawa ke transaksi pelanggan berikutnya jika modal dibuka ulang.
+- **Resolution:** Menambahkan `useEffect` reset state saat `isOpen` menjadi `true`, memastikan setiap transaksi dimulai dengan kondisi bersih (`cash = 0`, `method = 'cash'`, `errorMsg = ''`).
+
+### [P1 Resolved] Eliminasi `window.prompt()` pada Rekonsiliasi Tutup Shift
+- **Location:** `src/components/cashflow/ShiftCloseModal.tsx`
+- **Impact:** Penggunaan dialog `window.prompt()` native berisiko terblokir di mode PWA standalone/WebView dan tidak mendukung pembacaan rupiah langsung.
+- **Resolution:** Diganti dengan alur modal 2-tahap terintegrasi (*Rekonsiliasi Laci* $\rightarrow$ *Buka Shift Baru*) dilengkapi konfirmasi pembacaan rupiah langsung, tombol preset modal awal, indikator loading Dexie, dan tombol `Tutup Toko Saja`.
+
+### [P2 Resolved] Keyboard Fisik PIN Entry, Error Shake Keyframe & Motion Safety
+- **Location:** `src/components/layout/PinLockScreen.tsx`, `src/components/layout/SupervisorModal.tsx`, `src/app/globals.css`
+- **Impact:** Input PIN layar kunci hanya bisa diklik via mouse dan class `.animate-shake` belum didefinisikan di CSS.
+- **Resolution:** Menambahkan dukungan input angka keyboard fisik (`0-9`, `Backspace`, `Escape`), mendefinisikan `@keyframes shake`, serta menerapkan aturan `@media (prefers-reduced-motion: reduce)`.
+
+### [P2 Resolved] Inline Non-Blocking Errors & Mobile Input Hardening
+- **Location:** `src/components/pos/ProductGrid.tsx`, `src/components/pos/PaymentModal.tsx`, `src/components/dashboard/DashboardOverview.tsx`
+- **Impact:** Kesalahan scan barcode atau input uang kurang memicu `alert()` yang menyita fokus scanner; label `0%` pada grafik perbandingan rasio terpotong saat salah satu sisi bernilai 0; input `text-xs` memicu auto-zoom iOS Safari.
+- **Resolution:** Mengganti `alert()` dengan banner error `role="alert"` inline, menaikkan ukuran font input mobile ke `text-base sm:text-sm`, serta menambahkan guard visibilitas (`pct >= 8`) dan kontras `bg-emerald-600` / `bg-rose-600` pada grafik rasio.
+
+

@@ -47,6 +47,18 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   const [cashReceived, setCashReceived] = useState<number>(0);
   const [debtDueDate, setDebtDueDate] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  // Reset modal transient states on every new checkout
+  useEffect(() => {
+    if (isOpen) {
+      setMethod('cash');
+      setCashReceived(0);
+      setDebtDueDate('');
+      setErrorMsg('');
+      setIsSubmitting(false);
+    }
+  }, [isOpen]);
 
   // Calculations
   const subtotal = useMemo(() => cartItems.reduce((acc, i) => acc + i.subtotal, 0), [cartItems]);
@@ -107,14 +119,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 
   const handleQuickCash = (amt: number) => {
     setCashReceived(amt);
+    setErrorMsg('');
   };
 
   const handleCompletePayment = async () => {
     if (isCashInsufficient) {
-      alert('Uang yang diterima kurang dari total belanja.');
+      setErrorMsg('Uang yang diterima kurang dari total belanja.');
       return;
     }
 
+    setErrorMsg('');
     setIsSubmitting(true);
     try {
       const now = new Date().toISOString();
@@ -195,18 +209,23 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       onPaymentSuccess(newOrder);
     } catch (err) {
       console.error('Failed to complete payment:', err);
-      alert('Gagal memproses pembayaran. Silakan coba lagi.');
+      setErrorMsg('Gagal memproses pembayaran. Silakan periksa kembali data dan coba lagi.');
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="payment-modal-title"
+      className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4"
+    >
       <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900">Pembayaran Kasir</h3>
+            <h3 id="payment-modal-title" className="text-base sm:text-lg font-bold text-slate-900">Pembayaran Kasir</h3>
             <p className="text-xs text-slate-600">Pilih metode pembayaran dan hitung kembalian</p>
           </div>
           <button
@@ -390,6 +409,12 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                 className="w-full h-9 px-3 rounded-lg border border-amber-300 bg-white text-xs"
                 placeholder="Janji tanggal bayar"
               />
+            </div>
+          )}
+          {errorMsg && (
+            <div role="alert" className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <span>{errorMsg}</span>
             </div>
           )}
         </div>

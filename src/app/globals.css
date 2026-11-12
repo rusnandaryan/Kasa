@@ -87,3 +87,59 @@ input, textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
 }
+
+/* Tactile error shake animation for wrong PIN */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.35s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* Respect prefers-reduced-motion without hiding instant state indicators */
+@media (prefers-reduced-motion: reduce) {
+  .animate-shake,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.05s !important;
+  }
+}
+
+/* Thermal Receipt & Financial Report Print Isolation */
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #thermal-receipt-printable,
+  #thermal-receipt-printable *,
+  #report-printable,
+  #report-printable * {
+    visibility: visible;
+  }
+  #thermal-receipt-printable,
+  #report-printable {
+    position: fixed;
+    left: 0;
+    top: 0;
+    margin: 0 !important;
+    padding: 8px !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
+  }
+  #report-printable {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px !important;
+  }
+}

@@ -16,6 +16,7 @@ export const ProductGrid: React.FC = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [barcodeError, setBarcodeError] = useState('');
   const [isBarcodeOpen, setIsBarcodeOpen] = useState(false);
 
   // Variant Modal
@@ -74,15 +75,15 @@ export const ProductGrid: React.FC = () => {
 
   const handleBarcodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!barcodeInput) return;
-    const match = products.find((p) => p.skuBarcode === barcodeInput);
+    if (!barcodeInput.trim()) return;
+    const match = products.find((p) => p.skuBarcode === barcodeInput.trim());
     if (match) {
       handleProductClick(match);
-      sound.playBlip();
+      setBarcodeError('');
       setBarcodeInput('');
       setIsBarcodeOpen(false);
     } else {
-      alert(`Produk dengan barcode "${barcodeInput}" tidak ditemukan.`);
+      setBarcodeError(`Produk dengan barcode "${barcodeInput.trim()}" tidak ditemukan.`);
     }
   };
 
@@ -100,7 +101,7 @@ export const ProductGrid: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={`Cari ${branding.customTerminology.itemLabel.toLowerCase()} atau ketik barcode... [F2]`}
-              className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm text-slate-800 transition-all placeholder:text-slate-500"
+              className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-base sm:text-sm text-slate-800 transition-all placeholder:text-slate-500"
             />
             {searchQuery && (
               <button
@@ -117,7 +118,10 @@ export const ProductGrid: React.FC = () => {
           {/* Barcode Scanner Toggle */}
           <button
             type="button"
-            onClick={() => setIsBarcodeOpen(!isBarcodeOpen)}
+            onClick={() => {
+              setIsBarcodeOpen(!isBarcodeOpen);
+              setBarcodeError('');
+            }}
             aria-label="Buka scanner barcode"
             className={`h-11 px-3 sm:px-3.5 rounded-xl border flex items-center gap-1.5 text-xs font-semibold transition-all ${
               isBarcodeOpen
@@ -133,22 +137,33 @@ export const ProductGrid: React.FC = () => {
 
         {/* Barcode Quick Form Dropdown */}
         {isBarcodeOpen && (
-          <form onSubmit={handleBarcodeSubmit} className="flex gap-2 animate-in fade-in duration-100">
-            <input
-              type="text"
-              value={barcodeInput}
-              onChange={(e) => setBarcodeInput(e.target.value)}
-              placeholder="Scan atau ketik kode barcode di sini, lalu tekan Enter"
-              autoFocus
-              className="flex-1 h-10 px-3 rounded-lg border border-blue-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-xs font-mono"
-            />
-            <button
-              type="submit"
-              className="px-4 h-10 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors"
-            >
-              Cari & Tambah
-            </button>
-          </form>
+          <div className="space-y-1.5 animate-in fade-in duration-100">
+            <form onSubmit={handleBarcodeSubmit} className="flex gap-2">
+              <input
+                type="text"
+                value={barcodeInput}
+                onChange={(e) => {
+                  setBarcodeInput(e.target.value);
+                  if (barcodeError) setBarcodeError('');
+                }}
+                placeholder="Scan atau ketik kode barcode di sini, lalu tekan Enter"
+                autoFocus
+                className="flex-1 min-w-0 h-10 px-3 rounded-lg border border-blue-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 text-base sm:text-xs font-mono"
+              />
+              <button
+                type="submit"
+                className="px-4 h-10 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-colors shrink-0"
+              >
+                Cari & Tambah
+              </button>
+            </form>
+            {barcodeError && (
+              <p role="alert" className="text-xs font-semibold text-rose-700 flex items-center gap-1.5 px-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{barcodeError}</span>
+              </p>
+            )}
+          </div>
         )}
 
         {/* Category Pills */}
