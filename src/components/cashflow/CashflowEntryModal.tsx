@@ -109,10 +109,10 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
             <h3 className="text-base sm:text-lg font-bold text-slate-900">
-              Catat {entryType === 'expense' ? 'Pengeluaran (Uang Keluar)' : 'Pemasukan (Uang Masuk)'}
+              Catat {entryType === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
             </h3>
             <p className="text-xs text-slate-600">
-              Pencatatan kas untuk laporan laba bersih yang presisi
+              Tambahkan Pemasukan/Pengeluaran Secara Manual
             </p>
           </div>
           <button
@@ -135,11 +135,10 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 setEntryType('expense');
                 setCategory('Bahan Baku');
               }}
-              className={`h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold transition-all ${
-                entryType === 'expense'
-                  ? 'bg-rose-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold transition-all ${entryType === 'expense'
+                ? 'bg-rose-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               <ArrowDownRight className="w-4 h-4" />
               <span>Pengeluaran</span>
@@ -151,11 +150,10 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
                 setEntryType('income');
                 setCategory('Tambahan Modal Laci');
               }}
-              className={`h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold transition-all ${
-                entryType === 'income'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`h-11 rounded-xl flex items-center justify-center gap-1.5 text-xs font-bold transition-all ${entryType === 'income'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               <ArrowUpRight className="w-4 h-4" />
               <span>Pemasukan</span>
@@ -216,11 +214,10 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFundSource('cash_drawer')}
-                className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
-                  fundSource === 'cash_drawer'
-                    ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-2xs'
-                    : 'border-slate-200 bg-slate-50 text-slate-600'
-                }`}
+                className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${fundSource === 'cash_drawer'
+                  ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-2xs'
+                  : 'border-slate-200 bg-slate-50 text-slate-600'
+                  }`}
               >
                 <p className="font-bold">Kas Laci Kasir</p>
                 <p className="text-[10px] text-slate-500 font-normal">Mempengaruhi uang fisik laci</p>
@@ -229,11 +226,10 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
               <button
                 type="button"
                 onClick={() => setFundSource('bank_owner')}
-                className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${
-                  fundSource === 'bank_owner'
-                    ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-2xs'
-                    : 'border-slate-200 bg-slate-50 text-slate-600'
-                }`}
+                className={`p-2.5 rounded-xl border text-left text-xs font-semibold transition-all ${fundSource === 'bank_owner'
+                  ? 'border-blue-600 bg-blue-50 text-blue-900 shadow-2xs'
+                  : 'border-slate-200 bg-slate-50 text-slate-600'
+                  }`}
               >
                 <p className="font-bold">Rekening Bank / Owner</p>
                 <p className="text-[10px] text-slate-500 font-normal">Tidak potong kas laci kasir</p>
@@ -304,9 +300,8 @@ export const CashflowEntryModal: React.FC<CashflowEntryModalProps> = ({
             </button>
             <button
               type="submit"
-              className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-xs hover:opacity-90 flex items-center gap-1.5 ${
-                entryType === 'expense' ? 'bg-rose-600' : 'bg-emerald-600'
-              }`}
+              className={`px-5 py-2.5 rounded-xl text-white text-xs font-bold shadow-xs hover:opacity-90 flex items-center gap-1.5 ${entryType === 'expense' ? 'bg-rose-600' : 'bg-emerald-600'
+                }`}
             >
               <Check className="w-4 h-4" />
               <span>Simpan Catatan Kas</span>

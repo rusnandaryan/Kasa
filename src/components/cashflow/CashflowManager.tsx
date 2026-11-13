@@ -81,7 +81,7 @@ export const CashflowManager: React.FC = () => {
               Cash Flow
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
-              Pantau seluruh pemasukan penjualan dan catatan kas keluar usaha secara transparan.
+              Pemantauan seluruh pemasukan penjualan dan catatan kas keluar usaha.
             </p>
           </div>
 
@@ -108,7 +108,7 @@ export const CashflowManager: React.FC = () => {
               className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Kas Keluar</span>
+              <span>Tambah Pemasukan/Pengeluaran</span>
             </button>
           </div>
         </div>
@@ -128,7 +128,7 @@ export const CashflowManager: React.FC = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-emerald-700 tabular-nums">
               {formatRupiah(totalIncome)}
             </p>
-            <p className="text-[11px] text-slate-500 mt-1">Penjualan kasir & modal masuk</p>
+            <p className="text-[11px] text-slate-500 mt-1">Penjualan kasir & modal masuk,dll</p>
           </div>
 
           {/* Expense Card */}
@@ -144,28 +144,27 @@ export const CashflowManager: React.FC = () => {
             <p className="text-xl sm:text-2xl font-extrabold text-rose-700 tabular-nums">
               {formatRupiah(totalExpense)}
             </p>
-            <p className="text-[11px] text-slate-500 mt-1">Belanja bahan, operasional & gaji</p>
+            <p className="text-[11px] text-slate-500 mt-1">Belanja bahan, operasional & gaji, dll </p>
           </div>
 
           {/* Net Cashflow Card */}
           <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                Arus Kas Bersih (Selisih)
+                Arus Kas Bersih
               </span>
               <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
                 <Coins className="w-4 h-4" />
               </div>
             </div>
             <p
-              className={`text-xl sm:text-2xl font-extrabold tabular-nums ${
-                netCashflow >= 0 ? 'text-blue-700' : 'text-rose-700'
-              }`}
+              className={`text-xl sm:text-2xl font-extrabold tabular-nums ${netCashflow >= 0 ? 'text-blue-700' : 'text-rose-700'
+                }`}
             >
               {formatRupiah(netCashflow)}
             </p>
             <p className="text-[11px] text-slate-500 mt-1">
-              {netCashflow >= 0 ? 'Surplus kas terkumpul' : 'Defisit arus kas'}
+              {netCashflow >= 0 ? 'Pendapatan Surplus' : 'Pendapatan Defisit'}
             </p>
           </div>
         </div>
@@ -185,11 +184,10 @@ export const CashflowManager: React.FC = () => {
                   key={f.id}
                   type="button"
                   onClick={() => setFilterType(f.id as 'all' | 'income' | 'expense')}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                    filterType === f.id
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${filterType === f.id
+                    ? 'bg-slate-900 text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
                 >
                   {f.label}
                 </button>
@@ -207,11 +205,10 @@ export const CashflowManager: React.FC = () => {
                   key={s.id}
                   type="button"
                   onClick={() => setFilterSource(s.id as 'all' | 'cash_drawer' | 'bank_owner')}
-                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                    filterSource === s.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${filterSource === s.id
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
                 >
                   {s.label}
                 </button>
@@ -275,11 +272,10 @@ export const CashflowManager: React.FC = () => {
                           <div>
                             <div className="flex items-center gap-1.5">
                               <span
-                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                                  isIncome
-                                    ? 'bg-emerald-100 text-emerald-800'
-                                    : 'bg-rose-100 text-rose-800'
-                                }`}
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider ${isIncome
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-rose-100 text-rose-800'
+                                  }`}
                               >
                                 {e.category}
                               </span>
