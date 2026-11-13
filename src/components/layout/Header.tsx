@@ -7,7 +7,6 @@ import {
   WifiOff,
   Lock,
   UserCheck,
-  HelpCircle,
   Keyboard,
   LogOut,
   ChevronDown,
@@ -17,12 +16,10 @@ import { ROLE_LABELS } from '@/core/auth';
 import { formatRupiah } from '@/core/formatters';
 
 interface HeaderProps {
-  onOpenOnboarding: () => void;
   onOpenShortcuts?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  onOpenOnboarding,
   onOpenShortcuts,
 }) => {
   const {
@@ -60,6 +57,13 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, [showMemberDropdown]);
 
+  const isOwner = activeMember.role === 'owner';
+  const headerLogoUrl = isOwner ? '/logo.jpg' : branding.logoUrl;
+  const headerTitle = isOwner ? 'KASA' : branding.brandName;
+  const headerSubtitle = isOwner
+    ? 'Sistem Kasir & Pembukuan UMKM'
+    : branding.address || 'Alamat toko belum diatur';
+
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
       <div className="w-full px-3 sm:px-4">
@@ -67,10 +71,11 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Brand & Logo */}
           <div className="flex items-center gap-3 min-w-0">
             <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden border border-slate-200 bg-white shrink-0 shadow-xs flex items-center justify-center">
-              {branding.logoUrl ? (
+              {headerLogoUrl ? (
                 <Image
-                  src={branding.logoUrl}
-                  alt={`Logo ${branding.brandName}`}
+                  key={headerLogoUrl}
+                  src={headerLogoUrl}
+                  alt={`Logo ${headerTitle}`}
                   width={44}
                   height={44}
                   className="w-full h-full object-cover"
@@ -81,36 +86,23 @@ export const Header: React.FC<HeaderProps> = ({
                 />
               ) : (
                 <span className="font-bold text-lg text-blue-600">
-                  {branding.brandName.charAt(0)}
+                  {headerTitle.charAt(0)}
                 </span>
               )}
             </div>
 
             <div className="min-w-0">
               <h1 className="font-bold text-slate-900 text-base sm:text-lg tracking-tight truncate leading-tight">
-                {branding.brandName}
+                {headerTitle}
               </h1>
               <p className="text-xs text-slate-600 truncate hidden sm:block">
-                {branding.address || 'Alamat toko belum diatur'}
+                {headerSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Center Actions: Owner Setup & Shortcuts */}
+          {/* Center Actions: Shortcuts */}
           <div className="flex items-center gap-2">
-            {/* Setup Wizard Button (Owner Only) */}
-            {activeMember.role === 'owner' && (
-              <button
-                type="button"
-                onClick={onOpenOnboarding}
-                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                title="Buka panduan setup awal"
-              >
-                <HelpCircle className="w-3.5 h-3.5 text-blue-600" />
-                <span>Panduan Setup</span>
-              </button>
-            )}
-
             {/* Shortcut Cheatsheet Button (Finding UX-03 / REC-02) */}
             {onOpenShortcuts && (
               <button

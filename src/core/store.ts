@@ -7,6 +7,8 @@ import {
   HoldOrder,
   CashierShift,
   BusinessType,
+  CustomBusinessType,
+  Category,
   OrderServiceType,
 } from './types';
 import {
@@ -141,6 +143,11 @@ interface AppState {
 
   // Switch Business Type preset
   applyBusinessPreset: (type: BusinessType) => Promise<void>;
+  addCustomBusinessType: (
+    newType: CustomBusinessType,
+    options?: { catalogPreset?: 'none' | 'fnb' | 'retail' | 'service' }
+  ) => Promise<void>;
+  deleteCustomBusinessType: (typeId: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -585,6 +592,28 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   applyBusinessPreset: async (businessType: BusinessType) => {
     const { branding } = get();
+    const customTypes = branding.customBusinessTypes || [];
+    const customMatch = customTypes.find((c) => c.id === businessType);
+
+    if (customMatch) {
+      const updatedBranding: StoreBranding = {
+        ...branding,
+        businessType: customMatch.id,
+        themeColor: customMatch.themeColor || branding.themeColor,
+        customTerminology: {
+          itemLabel: customMatch.itemLabel,
+          categoryLabel: customMatch.categoryLabel,
+          orderIdentifier: customMatch.orderIdentifier,
+        },
+      };
+      await db.stores.put(updatedBranding);
+      set({ branding: updatedBranding });
+      if (customMatch.themeColor) {
+        get().applyThemeCssVars(customMatch.themeColor);
+      }
+      return;
+    }
+
     const { categories, products, brandingUpdates } = getSampleCatalog(businessType, branding.id);
 
     // Replace current catalog in local DB
@@ -604,6 +633,88 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
 
     get().clearCart();
+  },
+
+  addCustomBusinessType: async (
+    newType: CustomBusinessType,
+    options?: { catalogPreset?: 'none' | 'fnb' | 'retail' | 'service' }
+  ) => {
+    const { branding } = get();
+    const existing = branding.customBusinessTypes || [];
+    const updatedList = [...existing.filter((t) => t.id !== newType.id), newType];
+
+    let shouldReplaceCatalog = false;
+    let categories: Category[] = [];
+    let products: Product[] = [];
+
+    if (options?.catalogPreset === 'none') {
+      shouldReplaceCatalog = true;
+      categories = [];
+      products = [];
+    } else if (
+      options?.catalogPreset &&
+      ['fnb', 'retail', 'service'].includes(options.catalogPreset)
+    ) {
+      shouldReplaceCatalog = true;
+      const sample = getSampleCatalog(options.catalogPreset, branding.id);
+      categories = sample.categories;
+      products = sample.products;
+    }
+
+    const updatedBranding: StoreBranding = {
+      ...branding,
+      businessType: newType.id,
+      customBusinessTypes: updatedList,
+      themeColor: newType.themeColor || branding.themeColor,
+      customTerminology: {
+        itemLabel: newType.itemLabel,
+        categoryLabel: newType.categoryLabel,
+        orderIdentifier: newType.orderIdentifier,
+      },
+    };
+
+    await db.transaction('rw', [db.categories, db.products, db.stores], async () => {
+      if (shouldReplaceCatalog) {
+        await db.categories.clear();
+        await db.products.clear();
+        if (categories.length > 0) await db.categories.bulkAdd(categories);
+        if (products.length > 0) await db.products.bulkAdd(products);
+      }
+      await db.stores.put(updatedBranding);
+    });
+
+    set({ branding: updatedBranding });
+    if (newType.themeColor) {
+      get().applyThemeCssVars(newType.themeColor);
+    }
+    get().clearCart();
+  },
+
+  deleteCustomBusinessType: async (typeId: string) => {
+    const { branding } = get();
+    const existing = branding.customBusinessTypes || [];
+    const updatedList = existing.filter((t) => t.id !== typeId);
+
+    const isCurrentActive = branding.businessType === typeId;
+    const nextType = isCurrentActive ? 'fnb' : branding.businessType;
+
+    const updatedBranding: StoreBranding = {
+      ...branding,
+      businessType: nextType,
+      customBusinessTypes: updatedList,
+      ...(isCurrentActive
+        ? {
+            customTerminology: {
+              itemLabel: 'Menu',
+              categoryLabel: 'Kategori',
+              orderIdentifier: 'Nomor Meja',
+            },
+          }
+        : {}),
+    };
+
+    await db.stores.put(updatedBranding);
+    set({ branding: updatedBranding });
   },
 }));
 

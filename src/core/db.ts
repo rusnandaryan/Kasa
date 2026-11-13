@@ -78,6 +78,7 @@ export const DEFAULT_STORE_BRANDING: StoreBranding = {
   logoUrl: '/logo.jpg', // Official application logo in *.jpg format
   themeColor: '#2563EB', // Default Royal Trust Blue
   businessType: 'fnb',
+  customBusinessTypes: [],
   address: 'Jl. Pemuda No. 45, Jakarta Pusat',
   phoneWhatsapp: '081234567890',
   currency: 'IDR',

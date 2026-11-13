@@ -14,21 +14,18 @@ import { CashflowManager } from '@/components/cashflow/CashflowManager';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { StaffManager } from '@/components/staff/StaffManager';
 import { SettingsBranding } from '@/components/settings/SettingsBranding';
-import { OnboardingModal } from '@/components/onboarding/OnboardingModal';
 import { ShortcutModal } from '@/components/pos/ShortcutModal';
 
 export default function Home() {
   const {
     isInitializing,
     isAuthenticated,
-    activeMember,
     initStore,
     activeTab,
     isPinLocked,
     setOnlineStatus,
   } = useAppStore();
 
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
   useEffect(() => {
@@ -89,11 +86,6 @@ export default function Home() {
 
       {/* Top Application Header */}
       <Header
-        onOpenOnboarding={() => {
-          if (activeMember.role === 'owner') {
-            setIsOnboardingOpen(true);
-          }
-        }}
         onOpenShortcuts={() => setIsShortcutModalOpen(true)}
       />
 
@@ -112,14 +104,6 @@ export default function Home() {
 
       {/* Application Footer */}
       <Footer />
-
-      {/* Onboarding Wizard Modal (Owner Only) */}
-      {activeMember.role === 'owner' && (
-        <OnboardingModal
-          isOpen={isOnboardingOpen}
-          onClose={() => setIsOnboardingOpen(false)}
-        />
-      )}
 
       {/* Keyboard Shortcuts Cheat Sheet Modal (REC-02) */}
       <ShortcutModal

@@ -8,16 +8,22 @@ import {
   Receipt,
   Upload,
   Check,
-  Percent,
-  Layers,
-  Wrench,
+  Briefcase,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
 import { BusinessType } from '@/core/types';
 import { formatRupiah } from '@/core/formatters';
+import { CustomBusinessTypeModal } from './CustomBusinessTypeModal';
 
 export const SettingsBranding: React.FC = () => {
-  const { branding, updateBranding, applyBusinessPreset } = useAppStore();
+  const {
+    branding,
+    updateBranding,
+    applyBusinessPreset,
+    deleteCustomBusinessType,
+  } = useAppStore();
 
   const [brandName, setBrandName] = useState(branding.brandName);
   const [tagline, setTagline] = useState(branding.tagline);
@@ -40,6 +46,7 @@ export const SettingsBranding: React.FC = () => {
   const [paperSize, setPaperSize] = useState<'58mm' | '80mm'>(branding.receiptConfig.paperSize);
 
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   const themePresets = [
     { name: 'Royal Blue (Trust)', hex: '#2563EB' },
@@ -95,9 +102,21 @@ export const SettingsBranding: React.FC = () => {
   };
 
   const handleChangePreset = async (preset: BusinessType) => {
-    if (confirm('Ubah jenis usaha? Preset istilah dan contoh katalog akan disesuaikan.')) {
+    if (confirm('Ubah jenis usaha? Istilah dan pengaturan aplikasi akan disesuaikan.')) {
       await applyBusinessPreset(preset);
       // Update local inputs
+      const updated = useAppStore.getState().branding;
+      setItemLabel(updated.customTerminology.itemLabel);
+      setCategoryLabel(updated.customTerminology.categoryLabel);
+      setOrderIdentifier(updated.customTerminology.orderIdentifier);
+      setThemeColor(updated.themeColor);
+    }
+  };
+
+  const handleDeleteCustomType = async (e: React.MouseEvent, typeId: string, typeName: string) => {
+    e.stopPropagation();
+    if (confirm(`Hapus jenis usaha kustom "${typeName}"?`)) {
+      await deleteCustomBusinessType(typeId);
       const updated = useAppStore.getState().branding;
       setItemLabel(updated.customTerminology.itemLabel);
       setCategoryLabel(updated.customTerminology.categoryLabel);
@@ -264,11 +283,10 @@ export const SettingsBranding: React.FC = () => {
                       setThemeColor(preset.hex);
                       useAppStore.getState().applyThemeCssVars(preset.hex);
                     }}
-                    className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 text-xs transition-all ${
-                      themeColor.toLowerCase() === preset.hex.toLowerCase()
+                    className={`p-2 rounded-xl border flex flex-col items-center gap-1.5 text-xs transition-all ${themeColor.toLowerCase() === preset.hex.toLowerCase()
                         ? 'border-slate-900 bg-slate-50 font-bold shadow-2xs'
                         : 'border-slate-200 hover:border-slate-300'
-                    }`}
+                      }`}
                   >
                     <div
                       className="w-8 h-8 rounded-lg shadow-inner border border-black/10"
@@ -305,14 +323,66 @@ export const SettingsBranding: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Preset Usaha & Chameleon Terminology */}
-            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-              <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
-                <Wrench className="w-4 h-4 text-blue-600" />
-                <span>Chameleon Business Engine (Preset Jenis Usaha)</span>
-              </h3>
+            {/* 3. Jenis Usaha & Kustomisasi Istilah */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100 flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-blue-600" />
+                  <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider">
+                    Jenis Usaha
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-bold flex items-center gap-1.5 transition-colors shadow-2xs"
+                  title="Tambah jenis usaha kustom baru"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Tambah Jenis Usaha</span>
+                </button>
+              </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              {/* Dropdown Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Pilih Jenis Usaha Aktif
+                </label>
+                <div className="flex items-center gap-2">
+                  <select
+                    value={branding.businessType}
+                    onChange={(e) => handleChangePreset(e.target.value as BusinessType)}
+                    className="flex-1 h-10 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-900 bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-500"
+                  >
+                    <optgroup label="Preset Bawaan">
+                      <option value="fnb">☕ Kuliner / Kafe &amp; F&amp;B (Meja &amp; Varian)</option>
+                      <option value="retail">🛒 Toko Sembako / Retail (Barcode &amp; Stok)</option>
+                      <option value="service">✂️ Jasa Layanan / Servis (Staf &amp; Durasi)</option>
+                    </optgroup>
+                    {(branding.customBusinessTypes || []).length > 0 && (
+                      <optgroup label="Jenis Usaha Kustom">
+                        {(branding.customBusinessTypes || []).map((c) => (
+                          <option key={c.id} value={c.id}>
+                            🏷️ {c.name} ({c.itemLabel})
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomModalOpen(true)}
+                    className="h-10 px-3 rounded-xl bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold flex items-center gap-1 transition-colors shrink-0"
+                    title="Tambah Jenis Usaha Baru (+)"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Baru</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Visual Cards Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                 {[
                   { id: 'fnb', label: 'Kuliner / F&B', desc: 'Meja & Varian' },
                   { id: 'retail', label: 'Toko / Retail', desc: 'Barcode & Stok' },
@@ -322,20 +392,54 @@ export const SettingsBranding: React.FC = () => {
                     key={type.id}
                     type="button"
                     onClick={() => handleChangePreset(type.id as BusinessType)}
-                    className={`p-3 rounded-xl border text-left text-xs transition-all ${
-                      branding.businessType === type.id
+                    className={`p-3 rounded-xl border text-left text-xs transition-all ${branding.businessType === type.id
                         ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs'
                         : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700'
-                    }`}
+                      }`}
                   >
-                    <p>{type.label}</p>
+                    <p className="truncate">{type.label}</p>
                     <p className="text-[10px] text-slate-500 font-normal">{type.desc}</p>
                   </button>
                 ))}
+
+                {(branding.customBusinessTypes || []).map((c) => (
+                  <div
+                    key={c.id}
+                    onClick={() => handleChangePreset(c.id as BusinessType)}
+                    className={`p-3 rounded-xl border text-left text-xs transition-all cursor-pointer relative group flex flex-col justify-between ${branding.businessType === c.id
+                        ? 'border-blue-600 bg-blue-50 text-blue-900 font-bold shadow-2xs'
+                        : 'border-slate-200 hover:border-slate-300 bg-slate-50 text-slate-700'
+                      }`}
+                  >
+                    <div className="flex items-start justify-between gap-1">
+                      <p className="truncate pr-4">{c.name}</p>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteCustomType(e, c.id, c.name)}
+                        className="p-1 text-slate-400 hover:text-rose-600 rounded-md transition-colors opacity-0 group-hover:opacity-100"
+                        title="Hapus jenis usaha kustom ini"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-800 font-bold w-fit mt-1">
+                      Kustom
+                    </span>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setIsCustomModalOpen(true)}
+                  className="p-3 rounded-xl border border-dashed border-slate-300 hover:border-blue-500 hover:bg-blue-50/50 text-slate-600 hover:text-blue-700 text-xs font-semibold flex flex-col items-center justify-center gap-1 transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Tambah Kustom</span>
+                </button>
               </div>
 
               {/* Custom Terminology */}
-              <div className="grid grid-cols-3 gap-2 pt-2">
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 mb-1">
                     Label Item
@@ -393,18 +497,16 @@ export const SettingsBranding: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setPaperSize('58mm')}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${
-                        paperSize === '58mm' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
-                      }`}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${paperSize === '58mm' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                        }`}
                     >
                       58mm (Kecil)
                     </button>
                     <button
                       type="button"
                       onClick={() => setPaperSize('80mm')}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${
-                        paperSize === '80mm' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
-                      }`}
+                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold ${paperSize === '80mm' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'
+                        }`}
                     >
                       80mm (Besar)
                     </button>
@@ -513,9 +615,8 @@ export const SettingsBranding: React.FC = () => {
               </span>
 
               <div
-                className={`bg-white shadow-md border border-slate-300 p-3.5 font-receipt text-slate-800 text-xs rounded-sm relative selection:bg-none ${
-                  paperSize === '58mm' ? 'w-[250px]' : 'w-[290px]'
-                }`}
+                className={`bg-white shadow-md border border-slate-300 p-3.5 font-receipt text-slate-800 text-xs rounded-sm relative selection:bg-none ${paperSize === '58mm' ? 'w-[250px]' : 'w-[290px]'
+                  }`}
               >
                 <div className="text-center space-y-0.5 pb-2 border-b border-dashed border-slate-300">
                   {showLogo && logoUrl && (
@@ -581,6 +682,20 @@ export const SettingsBranding: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal Tambah Jenis Usaha Kustom */}
+      {isCustomModalOpen && (
+        <CustomBusinessTypeModal
+          isOpen={isCustomModalOpen}
+          onClose={() => setIsCustomModalOpen(false)}
+          onSaved={(newType) => {
+            setItemLabel(newType.itemLabel);
+            setCategoryLabel(newType.categoryLabel);
+            setOrderIdentifier(newType.orderIdentifier);
+            if (newType.themeColor) setThemeColor(newType.themeColor);
+          }}
+        />
+      )}
     </div>
   );
 };

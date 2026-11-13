@@ -1,4 +1,15 @@
-export type BusinessType = 'fnb' | 'retail' | 'service' | 'custom';
+export type BusinessType = 'fnb' | 'retail' | 'service' | 'custom' | string;
+
+export interface CustomBusinessType {
+  id: string;
+  name: string;
+  desc?: string;
+  itemLabel: string;
+  categoryLabel: string;
+  orderIdentifier: string;
+  defaultUnit?: string;
+  themeColor?: string;
+}
 
 export type UserRole = 'owner' | 'admin' | 'cashier';
 
@@ -19,6 +30,7 @@ export interface StoreBranding {
   logoUrl: string; // Defaults to '/logo.jpg'
   themeColor: string; // Hex, e.g. '#2563EB'
   businessType: BusinessType;
+  customBusinessTypes?: CustomBusinessType[];
   address: string;
   phoneWhatsapp: string;
   currency: string;

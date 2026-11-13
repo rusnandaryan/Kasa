@@ -31,6 +31,8 @@ Project ini dikunci dengan 6 pilar skill utama hasil seleksi interaktif `skill-s
    - Pemisahan peran Admin/Owner (akses penuh backoffice, HPP, dashboard laba bersih) vs Kasir (POS, pengeluaran kas laci, tutup shift).
    - Fast 6-digit PIN Switch untuk pergantian shift kasir dan Supervisor Override (untuk pembatalan void transaksi atau diskon khusus).
    - Audit Log wajib mencatat seluruh aksi sensitif (Void, override harga, selisih kas).
-4. **Chameleon Engine:**
+4. **Chameleon Engine & Otoritas Khusus Pemilik Usaha (Owner-Exclusive):**
    - Preset mode: F&B (Nomor Meja, Varian pedas/manis/suhu, Dapur), Retail (Barcode/SKU, Eceran/Grosir, Stok), Jasa (Durasi layanan, Staf, Status pengerjaan), dan Kustom.
+   - **Pemusatan Konfigurasi di Branding Toko:** Seluruh setup usaha dipusatkan langsung di menu Branding Toko; Panduan Setup (Onboarding Wizard) ditiadakan.
+   - **Menu Jenis Usaha & Kustomisasi (+):** Menu "Muat Contoh Usaha" pada Katalog Menu digantikan menjadi "Jenis Usaha" dan dipusatkan ke menu Branding Toko (serta dapat diakses langsung oleh owner pada Katalog Menu). Dropdown Jenis Usaha wajib menyediakan tombol `+` (Tambah Jenis Usaha) agar pemilik usaha dapat mendefinisikan jenis usaha kustom (Laundry, Bengkel, Petshop, Apotek, Car Wash, dsb.) dengan istilah dan satuan yang disesuaikan secara mandiri.
 

@@ -62,7 +62,12 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setSkuBarcode('');
       setSellingPrice(0);
       setCostPrice(0);
-      setUnitName(branding.businessType === 'service' ? 'Sesi' : 'Pcs');
+      const customType = (branding.customBusinessTypes || []).find(
+        (c) => c.id === branding.businessType
+      );
+      setUnitName(
+        customType?.defaultUnit || (branding.businessType === 'service' ? 'Sesi' : 'Pcs')
+      );
       setAllowDecimalQty(false);
       setIsOpenPrice(false);
       setTrackInventory(branding.businessType === 'retail');

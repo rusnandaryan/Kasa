@@ -21,19 +21,19 @@ export const Navigation: React.FC = () => {
     icon: React.ComponentType<{ className?: string }>;
     roleBadge?: string;
   }[] = [
-    { id: 'pos', label: 'Kasir (POS)', icon: ShoppingBag },
-    {
-      id: 'catalog',
-      label: branding.customTerminology.itemLabel
-        ? `Katalog ${branding.customTerminology.itemLabel}`
-        : 'Katalog',
-      icon: Layers,
-    },
-    { id: 'cashflow', label: 'Cash Flow', icon: ArrowLeftRight },
-    { id: 'dashboard', label: 'Ringkasan Laba', icon: TrendingUp, roleBadge: 'Admin' },
-    { id: 'staff', label: 'Staf & Akses', icon: Users, roleBadge: 'Admin' },
-    { id: 'settings', label: 'Branding Toko', icon: Palette, roleBadge: 'Pemilik' },
-  ];
+      { id: 'pos', label: 'Kasir', icon: ShoppingBag },
+      {
+        id: 'catalog',
+        label: branding.customTerminology.itemLabel
+          ? `Katalog ${branding.customTerminology.itemLabel}`
+          : 'Katalog',
+        icon: Layers,
+      },
+      { id: 'cashflow', label: 'Cash Flow', icon: ArrowLeftRight },
+      { id: 'dashboard', label: 'Ringkasan Laba', icon: TrendingUp, roleBadge: 'Admin' },
+      { id: 'staff', label: 'Staf & Akses', icon: Users, roleBadge: 'Admin' },
+      { id: 'settings', label: 'Branding Toko', icon: Palette, roleBadge: 'Pemilik' },
+    ];
 
   return (
     <nav className="bg-white border-b border-slate-200">
@@ -60,19 +60,18 @@ export const Navigation: React.FC = () => {
                   }
                   setActiveTab(item.id);
                 }}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-150 shrink-0 ${
-                  isActive
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-150 shrink-0 ${isActive
                     ? 'shadow-xs text-white'
                     : isRestricted
-                    ? 'opacity-40 text-slate-400 cursor-not-allowed hover:bg-slate-50'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                }`}
+                      ? 'opacity-40 text-slate-400 cursor-not-allowed hover:bg-slate-50'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
                 style={
                   isActive
                     ? {
-                        backgroundColor: 'var(--brand-primary, #2563EB)',
-                        color: 'var(--brand-primary-text, #FFFFFF)',
-                      }
+                      backgroundColor: 'var(--brand-primary, #2563EB)',
+                      color: 'var(--brand-primary-text, #FFFFFF)',
+                    }
                     : undefined
                 }
               >
@@ -80,9 +79,8 @@ export const Navigation: React.FC = () => {
                 <span>{item.label}</span>
                 {item.roleBadge && (
                   <span
-                    className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${
-                      isActive ? 'bg-white/25 text-white' : 'bg-slate-200/70 text-slate-700'
-                    }`}
+                    className={`text-[10px] uppercase font-bold px-1.5 py-0.2 rounded ${isActive ? 'bg-white/25 text-white' : 'bg-slate-200/70 text-slate-700'
+                      }`}
                   >
                     {item.roleBadge}
                   </span>
