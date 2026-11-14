@@ -15,9 +15,10 @@ interface ReceiptModalProps {
   order: Order | null;
   isOpen: boolean;
   onClose: () => void;
+  variant?: 'success' | 'detail';
 }
 
-export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClose }) => {
+export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClose, variant = 'success' }) => {
   const { branding } = useAppStore();
   const receiptPrintRef = useRef<HTMLDivElement>(null);
 
@@ -96,7 +97,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
               <Check className="w-4 h-4 stroke-[3]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Transaksi Berhasil</h3>
+              <h3 className="text-sm font-bold text-slate-900">{variant === 'detail' ? 'Detail Invoice' : 'Transaksi Berhasil'}</h3>
               <p className="text-[11px] text-slate-600 font-mono">{order.invoiceNumber}</p>
             </div>
           </div>
@@ -297,7 +298,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
             onClick={onClose}
             className="h-11 px-4 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors"
           >
-            Transaksi Baru
+            {variant === 'detail' ? 'Tutup' : 'Transaksi Baru'}
           </button>
         </div>
       </div>

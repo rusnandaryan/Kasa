@@ -11,8 +11,11 @@ import {
   Briefcase,
   Plus,
   Trash2,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { useAppStore } from '@/core/store';
+import { sound } from '@/core/sound';
 import { BusinessType } from '@/core/types';
 import { formatRupiah } from '@/core/formatters';
 import { CustomBusinessTypeModal } from './CustomBusinessTypeModal';
@@ -47,6 +50,7 @@ export const SettingsBranding: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [isSoundMuted, setIsSoundMuted] = useState(() => sound.getMuted());
 
   const themePresets = [
     { name: 'Royal Blue (Trust)', hex: '#2563EB' },
@@ -481,7 +485,51 @@ export const SettingsBranding: React.FC = () => {
               </div>
             </div>
 
-            {/* 4. Thermal Receipt & Tax Setup */}
+            {/* 4. Umpan Balik Suara (Audio Chime) */}
+            <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+              <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                <Volume2 className="w-4 h-4 text-blue-600" />
+                <span>Umpan Balik Suara (Audio Chime)</span>
+              </h3>
+
+              <div className="p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {isSoundMuted ? (
+                    <VolumeX className="w-4 h-4 text-slate-500 shrink-0" />
+                  ) : (
+                    <Volume2 className="w-4 h-4 text-blue-700 shrink-0" />
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900">
+                      Bunyi Sintetis Kasir
+                    </p>
+                    <p className="text-[11px] text-slate-600">
+                      Bunyi saat input menu & transaksi sukses. Tersimpan otomatis di perangkat.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nextMuted = sound.toggleMute();
+                    setIsSoundMuted(nextMuted);
+                    if (!nextMuted) {
+                      sound.playBlip();
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors shrink-0 ${
+                    isSoundMuted
+                      ? 'bg-slate-200 text-slate-700 hover:bg-slate-300'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 shadow-2xs'
+                  }`}
+                >
+                  {isSoundMuted ? 'Senyap (Mute)' : 'Aktif (Sound On)'}
+                </button>
+              </div>
+            </div>
+
+            {/* 5. Thermal Receipt & Tax Setup */}
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
               <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
                 <Receipt className="w-4 h-4 text-emerald-600" />

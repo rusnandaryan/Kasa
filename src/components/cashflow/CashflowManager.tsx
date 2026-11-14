@@ -7,23 +7,25 @@ import {
   Plus,
   Coins,
   FileText,
-  Calendar,
-  Filter,
   Trash2,
   Image as ImageIcon,
-  CheckCircle,
+  Eye,
+  FileSpreadsheet,
 } from 'lucide-react';
-import { CashflowEntry } from '@/core/types';
+import { CashflowEntry, Order } from '@/core/types';
 import { db } from '@/core/db';
 import { useAppStore } from '@/core/store';
 import { formatRupiah, formatDateTime } from '@/core/formatters';
 import { CashflowEntryModal } from './CashflowEntryModal';
 import { ShiftCloseModal } from './ShiftCloseModal';
+import { FinancialReportModal } from './FinancialReportModal';
+import { ReceiptModal } from '@/components/pos/ReceiptModal';
 
 export const CashflowManager: React.FC = () => {
-  const { branding, activeMember, activeShift } = useAppStore();
+  const { activeMember, activeShift } = useAppStore();
 
   const [entries, setEntries] = useState<CashflowEntry[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
   const [filterSource, setFilterSource] = useState<'all' | 'cash_drawer' | 'bank_owner'>('all');
 
@@ -31,12 +33,23 @@ export const CashflowManager: React.FC = () => {
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [entryModalType, setEntryModalType] = useState<'income' | 'expense'>('expense');
   const [isShiftCloseModalOpen, setIsShiftCloseModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [previewPhotoUrl, setPreviewPhotoUrl] = useState<string | null>(null);
+  const [invoiceOrder, setInvoiceOrder] = useState<Order | null>(null);
 
   const loadData = async () => {
-    const list = await db.cashflow.orderBy('transactionDate').reverse().toArray();
+    const [list, allOrders] = await Promise.all([
+      db.cashflow.orderBy('transactionDate').reverse().toArray(),
+      db.orders.toArray(),
+    ]);
     setEntries(list);
+    setOrders(allOrders);
   };
+
+  const getLinkedOrder = (entry: CashflowEntry): Order | undefined =>
+    entry.referenceOrderId
+      ? orders.find((o) => o.id === entry.referenceOrderId)
+      : undefined;
 
   useEffect(() => {
     loadData();
@@ -97,6 +110,16 @@ export const CashflowManager: React.FC = () => {
                 <span>Tutup Shift Kasir</span>
               </button>
             )}
+
+            {/* Laporan Keuangan Button */}
+            <button
+              type="button"
+              onClick={() => setIsReportModalOpen(true)}
+              className="px-3.5 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-xs font-bold text-slate-800 transition-colors flex items-center gap-1.5"
+            >
+              <FileSpreadsheet className="w-4 h-4 text-blue-600" />
+              <span>Laporan Keuangan</span>
+            </button>
 
             {/* Kas Keluar Button */}
             <button
@@ -227,13 +250,14 @@ export const CashflowManager: React.FC = () => {
                   <th className="py-3 px-4">Dicatat Oleh</th>
                   <th className="py-3 px-4 text-right">Nominal</th>
                   <th className="py-3 px-4 text-center">Nota</th>
+                  <th className="py-3 px-4 text-center">Invoice</th>
                   <th className="py-3 px-4 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filteredEntries.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 px-4">
+                    <td colSpan={8} className="text-center py-12 px-4">
                       <div className="max-w-xs mx-auto flex flex-col items-center">
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
                           <FileText className="w-6 h-6" />
@@ -318,6 +342,22 @@ export const CashflowManager: React.FC = () => {
                           )}
                         </td>
 
+                        <td className="py-3 px-4 text-center">
+                          {(() => {
+                            const linkedOrder = getLinkedOrder(e);
+                            return linkedOrder ? (
+                              <button
+                                type="button"
+                                onClick={() => setInvoiceOrder(linkedOrder)}
+                                aria-label={`Lihat invoice ${linkedOrder.invoiceNumber}`}
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                                title={`Lihat & Cetak Invoice ${linkedOrder.invoiceNumber}`}
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                            ) : null;
+                          })()}
+                        </td>
                         <td className="py-3 px-4 text-right">
                           <button
                             type="button"
@@ -354,6 +394,20 @@ export const CashflowManager: React.FC = () => {
         isOpen={isShiftCloseModalOpen}
         onClose={() => setIsShiftCloseModalOpen(false)}
         onShiftClosed={loadData}
+      />
+
+      {/* Financial Report Modal */}
+      <FinancialReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+      />
+
+      {/* Invoice Detail / Reprint Modal */}
+      <ReceiptModal
+        order={invoiceOrder}
+        isOpen={!!invoiceOrder}
+        onClose={() => setInvoiceOrder(null)}
+        variant="detail"
       />
 
       {/* Receipt Photo Lightbox Preview */}

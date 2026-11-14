@@ -60,7 +60,7 @@ export const POSTerminal: React.FC = () => {
       {/* Keyboard Shortcut Accelerator Bar (Desktop / Tablet) */}
       <div className="hidden md:flex items-center justify-between px-4 py-1 bg-slate-100 border-b border-slate-200 text-[11px] text-slate-600 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="font-semibold text-slate-700">Pintasan Terminal:</span>
+          <span className="font-semibold text-slate-700">Pintasan Menu:</span>
           <span className="inline-flex items-center gap-1">
             <kbd className="px-1.5 py-0.5 rounded bg-white border border-slate-300 font-mono text-[10px] shadow-2xs font-bold text-slate-800">F2</kbd>
             <span>Cari Menu</span>

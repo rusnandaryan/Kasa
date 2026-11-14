@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useAppStore } from '@/core/store';
 import { initializeDatabase } from '@/core/db';
 import { Header } from '@/components/layout/Header';
@@ -14,7 +14,6 @@ import { CashflowManager } from '@/components/cashflow/CashflowManager';
 import { DashboardOverview } from '@/components/dashboard/DashboardOverview';
 import { StaffManager } from '@/components/staff/StaffManager';
 import { SettingsBranding } from '@/components/settings/SettingsBranding';
-import { ShortcutModal } from '@/components/pos/ShortcutModal';
 
 export default function Home() {
   const {
@@ -25,8 +24,6 @@ export default function Home() {
     isPinLocked,
     setOnlineStatus,
   } = useAppStore();
-
-  const [isShortcutModalOpen, setIsShortcutModalOpen] = useState(false);
 
   useEffect(() => {
     // 1. Initialize IndexedDB & Seed data if empty
@@ -41,27 +38,9 @@ export default function Home() {
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // 3. Global hotkey '?' for keyboard shortcuts cheat sheet
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable
-      ) {
-        return;
-      }
-      if (e.key === '?') {
-        e.preventDefault();
-        setIsShortcutModalOpen((prev) => !prev);
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      window.removeEventListener('keydown', handleGlobalKeyDown);
     };
   }, [initStore, setOnlineStatus]);
 
@@ -85,9 +64,7 @@ export default function Home() {
       {isPinLocked && <PinLockScreen />}
 
       {/* Top Application Header */}
-      <Header
-        onOpenShortcuts={() => setIsShortcutModalOpen(true)}
-      />
+      <Header />
 
       {/* Navigation Tab Bar */}
       <Navigation />
@@ -104,12 +81,6 @@ export default function Home() {
 
       {/* Application Footer */}
       <Footer />
-
-      {/* Keyboard Shortcuts Cheat Sheet Modal (REC-02) */}
-      <ShortcutModal
-        isOpen={isShortcutModalOpen}
-        onClose={() => setIsShortcutModalOpen(false)}
-      />
     </div>
   );
 }

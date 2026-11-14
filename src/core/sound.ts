@@ -2,9 +2,31 @@
  * Web Audio API synthesizer for Kasa POS.
  * 100% offline, zero external sound assets, non-blocking audio feedback.
  */
+const SOUND_MUTE_KEY = 'kasa_sound_muted_v1';
+
 class SoundEngine {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      try {
+        this.isMuted = window.localStorage.getItem(SOUND_MUTE_KEY) === '1';
+      } catch {
+        // Storage unavailable, default to sound on
+      }
+    }
+  }
+
+  private setMuted(muted: boolean) {
+    this.isMuted = muted;
+    if (typeof window === 'undefined') return;
+    try {
+      window.localStorage.setItem(SOUND_MUTE_KEY, muted ? '1' : '0');
+    } catch {
+      // Ignore storage errors
+    }
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === 'undefined') return null;
@@ -85,8 +107,13 @@ class SoundEngine {
   }
 
   public toggleMute(): boolean {
-    this.isMuted = !this.isMuted;
-    return this.isMuted;
+    const next = !this.isMuted;
+    this.setMuted(next);
+    return next;
+  }
+
+  public setMutedState(muted: boolean) {
+    this.setMuted(muted);
   }
 
   public getMuted(): boolean {

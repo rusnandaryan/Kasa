@@ -15,13 +15,7 @@ import { useAppStore } from '@/core/store';
 import { ROLE_LABELS } from '@/core/auth';
 import { formatRupiah } from '@/core/formatters';
 
-interface HeaderProps {
-  onOpenShortcuts?: () => void;
-}
-
-export const Header: React.FC<HeaderProps> = ({
-  onOpenShortcuts,
-}) => {
+export const Header: React.FC = () => {
   const {
     branding,
     activeMember,
@@ -99,23 +93,6 @@ export const Header: React.FC<HeaderProps> = ({
                 {headerSubtitle}
               </p>
             </div>
-          </div>
-
-          {/* Center Actions: Shortcuts */}
-          <div className="flex items-center gap-2">
-            {/* Shortcut Cheatsheet Button (Finding UX-03 / REC-02) */}
-            {onOpenShortcuts && (
-              <button
-                type="button"
-                onClick={onOpenShortcuts}
-                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-                title="Buka panduan tombol pintas keyboard [?]"
-              >
-                <Keyboard className="w-3.5 h-3.5 text-slate-600" />
-                <span className="hidden md:inline">Tombol Pintas</span>
-                <kbd className="px-1 py-0.2 rounded bg-slate-200/80 font-mono text-[10px] text-slate-700 font-bold">?</kbd>
-              </button>
-            )}
           </div>
 
           {/* Right Controls: Connectivity, Member & PIN Lock */}

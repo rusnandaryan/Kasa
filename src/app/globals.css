@@ -126,8 +126,7 @@ input, textarea {
   #report-printable * {
     visibility: visible;
   }
-  #thermal-receipt-printable,
-  #report-printable {
+  #thermal-receipt-printable {
     position: fixed;
     left: 0;
     top: 0;
@@ -137,9 +136,21 @@ input, textarea {
     border: none !important;
     background: #ffffff !important;
   }
+  /* Multipage reports flow normally so tables never overlap the header;
+     position:absolute keeps the document anchored to page 1 origin. */
   #report-printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 0 !important;
+    padding: 16px !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #ffffff !important;
     width: 100% !important;
     max-width: 100% !important;
-    padding: 16px !important;
+  }
+  #report-printable tr {
+    page-break-inside: avoid;
   }
 }
