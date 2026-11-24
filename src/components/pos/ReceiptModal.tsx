@@ -89,7 +89,7 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ order, isOpen, onClo
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full flex flex-col max-h-[95vh] overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full flex flex-col max-h-[95dvh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header Modal Bar */}
         <div className="p-3.5 sm:p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-2">

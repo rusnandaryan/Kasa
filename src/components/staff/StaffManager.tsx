@@ -305,7 +305,7 @@ export const StaffManager: React.FC = () => {
                         m.role === 'owner'
                           ? 'bg-slate-900 text-white'
                           : m.role === 'admin'
-                          ? 'bg-purple-100 text-purple-800'
+                          ? 'bg-slate-100 text-slate-800 border border-slate-200'
                           : 'bg-blue-100 text-blue-800'
                       }`}
                     >
@@ -320,7 +320,7 @@ export const StaffManager: React.FC = () => {
                             m.role === 'owner'
                               ? 'bg-slate-900 text-white'
                               : m.role === 'admin'
-                              ? 'bg-purple-100 text-purple-800'
+                              ? 'bg-slate-100 text-slate-800 border border-slate-200'
                               : 'bg-blue-100 text-blue-800'
                           }`}
                         >

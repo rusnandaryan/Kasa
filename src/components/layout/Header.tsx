@@ -142,7 +142,7 @@ export const Header: React.FC = () => {
                       activeMember.role === 'owner'
                         ? 'bg-slate-900 text-white'
                         : activeMember.role === 'admin'
-                        ? 'bg-purple-100 text-purple-900'
+                        ? 'bg-slate-100 text-slate-800 border border-slate-200'
                         : 'bg-blue-100 text-blue-900'
                     }`}
                   >

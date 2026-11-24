@@ -46,7 +46,7 @@ export const HoldOrdersModal: React.FC<HoldOrdersModalProps> = ({ isOpen, onClos
           </button>
         </div>
 
-        <div className="space-y-2.5 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-2.5 max-h-[60dvh] overflow-y-auto">
           {heldOrders.length === 0 ? (
             <p className="text-xs text-slate-500 text-center py-8">
               Tidak ada pesanan aktif yang tersimpan.

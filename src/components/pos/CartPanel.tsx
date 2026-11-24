@@ -152,7 +152,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
   return (
     <div className="flex flex-col h-full bg-white border-l border-slate-200">
       {/* Cart Header */}
-      <div className="p-3 sm:p-4 border-b border-slate-200 bg-slate-50/70 space-y-2">
+      <div className="shrink-0 p-3 sm:p-4 border-b border-slate-200 bg-slate-50/70 space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 min-w-0">
             <Receipt className="w-5 h-5 text-blue-600 shrink-0" />
@@ -173,7 +173,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 title="Lihat daftar pesanan aktif"
               >
                 <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
                 <span>Pesanan Aktif ({heldOrders.length})</span>
@@ -244,32 +244,32 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
         {/* Service Mode Toggle: Dine In / Take Away */}
         <div
-          className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-200/70"
+          className="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-200/80"
           role="group"
           aria-label="Tipe Pesanan"
         >
           <button
             type="button"
             onClick={() => setActiveOrderType('dine_in')}
-            className={`h-8 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all ${
+            className={`h-9 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
               activeOrderType === 'dine_in'
-                ? 'bg-white text-blue-700 shadow-xs'
+                ? 'bg-white text-blue-700 shadow-xs border border-blue-100 font-extrabold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Utensils className="w-3.5 h-3.5" />
+            <Utensils className="w-3.5 h-3.5 shrink-0" />
             <span>Dine In</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveOrderType('take_away')}
-            className={`h-8 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-all ${
+            className={`h-9 rounded-lg text-xs font-bold inline-flex items-center justify-center gap-2 transition-all active:scale-[0.98] ${
               activeOrderType === 'take_away'
-                ? 'bg-white text-amber-700 shadow-xs'
+                ? 'bg-white text-amber-700 shadow-xs border border-amber-100 font-extrabold'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
+            <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
             <span>Take Away</span>
           </button>
         </div>
@@ -306,7 +306,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
       </div>
 
       {/* Cart Items List */}
-      <div className="flex-1 p-3 sm:p-4 overflow-y-auto divide-y divide-slate-100">
+      <div className="flex-1 min-h-0 p-3 sm:p-4 overflow-y-auto divide-y divide-slate-100">
         {cartItems.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
             <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
@@ -366,13 +366,13 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 </div>
               </div>
 
-              {/* Quantity Controls */}
+              {/* Quantity Controls with Ergonomic Touch Targets (>= 44px) */}
               <div className="flex items-center justify-between pt-1">
                 <button
                   type="button"
                   onClick={() => removeCartItem(item.id)}
                   aria-label={`Hapus ${item.name} dari keranjang`}
-                  className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
                   title="Hapus item"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -383,7 +383,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                     type="button"
                     onClick={() => updateCartItemQty(item.id, item.qty - (item.allowDecimalQty ? 0.5 : 1))}
                     aria-label={`Kurangi jumlah ${item.name}`}
-                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
+                    className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
@@ -402,7 +402,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                     }
                     onClick={() => updateCartItemQty(item.id, item.qty + (item.allowDecimalQty ? 0.5 : 1))}
                     aria-label={`Tambah jumlah ${item.name}`}
-                    className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-white transition-colors"
+                    className="w-11 h-11 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-700 hover:bg-slate-100 active:bg-slate-200 disabled:opacity-40 disabled:hover:bg-white transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -415,7 +415,7 @@ export const CartPanel: React.FC<CartPanelProps> = ({
 
       {/* Cart Bottom Summary & Checkout */}
       {cartItems.length > 0 && (
-        <div className="p-3 sm:p-4 border-t border-slate-200 bg-slate-50/80 space-y-2.5">
+        <div className="shrink-0 p-3 sm:p-4 border-t border-slate-200 bg-slate-50/95 backdrop-blur-xs space-y-2.5">
           {/* Quick Actions: Hold Bill & Discount */}
           <div className="flex items-center justify-between gap-2">
             <button

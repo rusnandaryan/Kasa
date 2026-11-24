@@ -66,7 +66,7 @@ export const VariantModal: React.FC<VariantModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-6 flex flex-col max-h-[90dvh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="flex items-start justify-between pb-3 border-b border-slate-100">
           <div>

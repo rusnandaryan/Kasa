@@ -24,6 +24,16 @@ export class KasaDexieDB extends Dexie {
 
   constructor() {
     super('KasaPOSDB');
+
+    // Gracefully handle version changes across multiple tabs or reloads
+    this.on('versionchange', () => {
+      this.close();
+    });
+
+    this.on('blocked', () => {
+      console.warn('KasaPOSDB upgrade is blocked by another open tab or connection.');
+    });
+
     this.version(1).stores({
       stores: 'id, brandName',
       members: 'id, storeId, role, pinCode',
@@ -44,25 +54,20 @@ export class KasaDexieDB extends Dexie {
       .stores({
         members: 'id, storeId, role, pinCode, username',
       })
-      .upgrade(async (tx) => {
-        const members = await tx.table('members').toArray();
-        for (const m of members) {
-          const updates: Record<string, string> = {};
+      .upgrade((tx) => {
+        return tx.table('members').toCollection().modify((m: StoreMember) => {
           if (!m.username) {
-            updates.username =
+            m.username =
               m.role === 'owner'
                 ? 'owner'
                 : `${m.role}-${String(m.id).slice(-4)}`;
           }
           if (!m.passwordHash) {
-            updates.passwordHash = hashPassword(
+            m.passwordHash = hashPassword(
               m.role === 'owner' ? 'owner123' : m.pinCode || '123456'
             );
           }
-          if (Object.keys(updates).length > 0) {
-            await tx.table('members').update(m.id, updates);
-          }
-        }
+        });
       });
   }
 }
@@ -513,169 +518,184 @@ export function getSampleCatalog(businessType: BusinessType, storeId: string = D
 }
 
 export async function initializeDatabase(): Promise<void> {
-  const storeCount = await db.stores.count();
-  if (storeCount === 0) {
-    // Seed default store & members
-    await db.stores.add(DEFAULT_STORE_BRANDING);
-    await db.members.bulkAdd(DEFAULT_MEMBERS);
+  try {
+    await db.open();
+    const storeCount = await db.stores.count();
+    if (storeCount === 0) {
+      // Seed default store & members
+      await db.stores.add(DEFAULT_STORE_BRANDING);
+      await db.members.bulkAdd(DEFAULT_MEMBERS);
 
-    // Seed default catalog (F&B)
-    const { categories, products } = getSampleCatalog('fnb', DEFAULT_STORE_ID);
-    await db.categories.bulkAdd(categories);
-    await db.products.bulkAdd(products);
+      // Seed default catalog (F&B)
+      const { categories, products } = getSampleCatalog('fnb', DEFAULT_STORE_ID);
+      await db.categories.bulkAdd(categories);
+      await db.products.bulkAdd(products);
 
-    // Seed an initial active cashier shift
-    const now = new Date().toISOString();
-    await db.shifts.add({
-      id: 'shift-initial-01',
-      storeId: DEFAULT_STORE_ID,
-      cashierMemberId: 'member-cashier-01',
-      cashierName: 'Budi (Kasir Shift Pagi)',
-      openedAt: now,
-      openingCash: 150000, // Rp 150.000 modal awal laci
-      status: 'open',
-    });
+      // Seed an initial active cashier shift
+      const now = new Date().toISOString();
+      await db.shifts.add({
+        id: 'shift-initial-01',
+        storeId: DEFAULT_STORE_ID,
+        cashierMemberId: 'member-cashier-01',
+        cashierName: 'Budi (Kasir Shift Pagi)',
+        openedAt: now,
+        openingCash: 150000, // Rp 150.000 modal awal laci
+        status: 'open',
+      });
 
-    // Seed a couple of initial sample orders & cashflow records for immediate rich dashboard experience
-    const initialOrder1: Order = {
-      id: 'ord-sample-01',
-      storeId: DEFAULT_STORE_ID,
-      shiftId: 'shift-initial-01',
-      cashierMemberId: 'member-cashier-01',
-      cashierName: 'Budi (Kasir Shift Pagi)',
-      invoiceNumber: 'INV-20261111-1001',
-      orderIdentifier: 'Meja 02',
-      customerName: 'Dimas',
-      items: [
-        {
-          productId: 'prod-fnb-01',
-          productName: 'Es Kopi Susu Gula Aren',
-          qty: 2,
-          unitPrice: 22000,
-          unitCost: 9500,
-          unitName: 'Cup',
-          variantsSelected: [{ groupName: 'Ukuran', optionName: 'Reguler (16oz)', priceDelta: 0 }],
-          subtotalItem: 44000,
-        },
-        {
-          productId: 'prod-fnb-04',
-          productName: 'Roti Toast Smoked Beef & Cheese',
-          qty: 1,
-          unitPrice: 28000,
-          unitCost: 13500,
-          unitName: 'Porsi',
-          variantsSelected: [],
-          subtotalItem: 28000,
-        },
-      ],
-      subtotal: 72000,
-      discountAmount: 0,
-      taxAmount: 0,
-      serviceAmount: 0,
-      totalAmount: 72000,
-      totalCostAmount: 32500,
-      paymentMethod: 'cash',
-      amountReceived: 100000,
-      changeAmount: 28000,
-      paymentStatus: 'paid',
-      syncedFromOffline: true,
-      createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-    };
-
-    const initialOrder2: Order = {
-      id: 'ord-sample-02',
-      storeId: DEFAULT_STORE_ID,
-      shiftId: 'shift-initial-01',
-      cashierMemberId: 'member-cashier-01',
-      cashierName: 'Budi (Kasir Shift Pagi)',
-      invoiceNumber: 'INV-20261111-1002',
-      orderIdentifier: 'Meja 05',
-      customerName: 'Siti Rahma',
-      items: [
-        {
-          productId: 'prod-fnb-03',
-          productName: 'Matcha Latte Uji Kyoto',
-          qty: 1,
-          unitPrice: 26000,
-          unitCost: 12000,
-          unitName: 'Cup',
-          variantsSelected: [],
-          subtotalItem: 26000,
-        },
-        {
-          productId: 'prod-fnb-05',
-          productName: 'Cireng Crispy Bumbu Rujak Pedas',
-          qty: 1,
-          unitPrice: 16000,
-          unitCost: 6500,
-          unitName: 'Porsi',
-          variantsSelected: [],
-          subtotalItem: 16000,
-        },
-      ],
-      subtotal: 42000,
-      discountAmount: 0,
-      taxAmount: 0,
-      serviceAmount: 0,
-      totalAmount: 42000,
-      totalCostAmount: 18500,
-      paymentMethod: 'qris',
-      amountReceived: 42000,
-      changeAmount: 0,
-      paymentStatus: 'paid',
-      syncedFromOffline: true,
-      createdAt: new Date(Date.now() - 3600000 * 1.5).toISOString(),
-    };
-
-    await db.orders.bulkAdd([initialOrder1, initialOrder2]);
-
-    // Initial cashflow entries
-    await db.cashflow.bulkAdd([
-      {
-        id: 'cf-sample-01',
+      // Seed a couple of initial sample orders & cashflow records for immediate rich dashboard experience
+      const initialOrder1: Order = {
+        id: 'ord-sample-01',
         storeId: DEFAULT_STORE_ID,
         shiftId: 'shift-initial-01',
-        referenceOrderId: 'ord-sample-01',
-        createdBy: 'member-cashier-01',
-        creatorName: 'Budi (Kasir Shift Pagi)',
-        entryType: 'income',
-        category: 'Penjualan Kasir',
-        fundSource: 'cash_drawer',
-        amount: 72000,
-        description: 'Penjualan INV-20261111-1001 (Tunai)',
-        transactionDate: initialOrder1.createdAt,
-        createdAt: initialOrder1.createdAt,
-      },
-      {
-        id: 'cf-sample-02',
+        cashierMemberId: 'member-cashier-01',
+        cashierName: 'Budi (Kasir Shift Pagi)',
+        invoiceNumber: 'INV-20261111-1001',
+        orderIdentifier: 'Meja 02',
+        customerName: 'Dimas',
+        items: [
+          {
+            productId: 'prod-fnb-01',
+            productName: 'Es Kopi Susu Gula Aren',
+            qty: 2,
+            unitPrice: 22000,
+            unitCost: 9500,
+            unitName: 'Cup',
+            variantsSelected: [{ groupName: 'Ukuran', optionName: 'Reguler (16oz)', priceDelta: 0 }],
+            subtotalItem: 44000,
+          },
+          {
+            productId: 'prod-fnb-04',
+            productName: 'Roti Toast Smoked Beef & Cheese',
+            qty: 1,
+            unitPrice: 28000,
+            unitCost: 13500,
+            unitName: 'Porsi',
+            variantsSelected: [],
+            subtotalItem: 28000,
+          },
+        ],
+        subtotal: 72000,
+        discountAmount: 0,
+        taxAmount: 0,
+        serviceAmount: 0,
+        totalAmount: 72000,
+        totalCostAmount: 32500,
+        paymentMethod: 'cash',
+        amountReceived: 100000,
+        changeAmount: 28000,
+        paymentStatus: 'paid',
+        syncedFromOffline: true,
+        createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+      };
+
+      const initialOrder2: Order = {
+        id: 'ord-sample-02',
         storeId: DEFAULT_STORE_ID,
         shiftId: 'shift-initial-01',
-        referenceOrderId: 'ord-sample-02',
-        createdBy: 'member-cashier-01',
-        creatorName: 'Budi (Kasir Shift Pagi)',
-        entryType: 'income',
-        category: 'Penjualan Kasir',
-        fundSource: 'bank_owner',
-        amount: 42000,
-        description: 'Penjualan INV-20261111-1002 (QRIS)',
-        transactionDate: initialOrder2.createdAt,
-        createdAt: initialOrder2.createdAt,
-      },
-      {
-        id: 'cf-sample-03',
-        storeId: DEFAULT_STORE_ID,
-        shiftId: 'shift-initial-01',
-        createdBy: 'member-cashier-01',
-        creatorName: 'Budi (Kasir Shift Pagi)',
-        entryType: 'expense',
-        category: 'Bahan Baku',
-        fundSource: 'cash_drawer',
-        amount: 25000,
-        description: 'Beli Es Batu Kristal 2 Karung & Galon Aqua',
-        transactionDate: new Date(Date.now() - 3600000 * 2).toISOString(),
-        createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      },
-    ]);
+        cashierMemberId: 'member-cashier-01',
+        cashierName: 'Budi (Kasir Shift Pagi)',
+        invoiceNumber: 'INV-20261111-1002',
+        orderIdentifier: 'Meja 05',
+        customerName: 'Siti Rahma',
+        items: [
+          {
+            productId: 'prod-fnb-03',
+            productName: 'Matcha Latte Uji Kyoto',
+            qty: 1,
+            unitPrice: 26000,
+            unitCost: 12000,
+            unitName: 'Cup',
+            variantsSelected: [],
+            subtotalItem: 26000,
+          },
+          {
+            productId: 'prod-fnb-05',
+            productName: 'Cireng Crispy Bumbu Rujak Pedas',
+            qty: 1,
+            unitPrice: 16000,
+            unitCost: 6500,
+            unitName: 'Porsi',
+            variantsSelected: [],
+            subtotalItem: 16000,
+          },
+        ],
+        subtotal: 42000,
+        discountAmount: 0,
+        taxAmount: 0,
+        serviceAmount: 0,
+        totalAmount: 42000,
+        totalCostAmount: 18500,
+        paymentMethod: 'qris',
+        amountReceived: 42000,
+        changeAmount: 0,
+        paymentStatus: 'paid',
+        syncedFromOffline: true,
+        createdAt: new Date(Date.now() - 3600000 * 1.5).toISOString(),
+      };
+
+      await db.orders.bulkAdd([initialOrder1, initialOrder2]);
+
+      // Initial cashflow entries
+      await db.cashflow.bulkAdd([
+        {
+          id: 'cf-sample-01',
+          storeId: DEFAULT_STORE_ID,
+          shiftId: 'shift-initial-01',
+          referenceOrderId: 'ord-sample-01',
+          createdBy: 'member-cashier-01',
+          creatorName: 'Budi (Kasir Shift Pagi)',
+          entryType: 'income',
+          category: 'Penjualan Kasir',
+          fundSource: 'cash_drawer',
+          amount: 72000,
+          description: 'Penjualan INV-20261111-1001 (Tunai)',
+          transactionDate: initialOrder1.createdAt,
+          createdAt: initialOrder1.createdAt,
+        },
+        {
+          id: 'cf-sample-02',
+          storeId: DEFAULT_STORE_ID,
+          shiftId: 'shift-initial-01',
+          referenceOrderId: 'ord-sample-02',
+          createdBy: 'member-cashier-01',
+          creatorName: 'Budi (Kasir Shift Pagi)',
+          entryType: 'income',
+          category: 'Penjualan Kasir',
+          fundSource: 'bank_owner',
+          amount: 42000,
+          description: 'Penjualan INV-20261111-1002 (QRIS)',
+          transactionDate: initialOrder2.createdAt,
+          createdAt: initialOrder2.createdAt,
+        },
+        {
+          id: 'cf-sample-03',
+          storeId: DEFAULT_STORE_ID,
+          shiftId: 'shift-initial-01',
+          createdBy: 'member-cashier-01',
+          creatorName: 'Budi (Kasir Shift Pagi)',
+          entryType: 'expense',
+          category: 'Bahan Baku',
+          fundSource: 'cash_drawer',
+          amount: 25000,
+          description: 'Beli Es Batu Kristal 2 Karung & Galon Aqua',
+          transactionDate: new Date(Date.now() - 3600000 * 2).toISOString(),
+          createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+        },
+      ]);
+    }
+  } catch (err) {
+    console.error('IndexedDB initialization failed, falling back to in-memory mode:', err);
+    // Graceful fallback: do not re-throw so the app can always open
+  }
+}
+
+export async function resetDatabase(): Promise<void> {
+  try {
+    db.close();
+    await Dexie.delete('KasaPOSDB');
+  } catch (err) {
+    console.error('Failed to reset Dexie database:', err);
   }
 }
 

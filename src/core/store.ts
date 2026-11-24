@@ -17,6 +17,8 @@ import {
   DEFAULT_MEMBERS,
   DEFAULT_STORE_ID,
   getSampleCatalog,
+  initializeDatabase,
+  resetDatabase,
 } from './db';
 import {
   adjustColorDarker,
@@ -79,6 +81,7 @@ interface AppState {
   branding: StoreBranding;
   isInitializing: boolean;
   initStore: () => Promise<void>;
+  forceReady: () => void;
   updateBranding: (updates: Partial<StoreBranding>) => Promise<void>;
   applyThemeCssVars: (colorHex: string) => void;
 
@@ -184,20 +187,36 @@ export const useAppStore = create<AppState>((set, get) => ({
     root.style.setProperty('--brand-primary-text', textColor);
   },
 
+  forceReady: () => {
+    set({ isInitializing: false });
+  },
+
   initStore: async () => {
     try {
       if (typeof window !== 'undefined') {
         set({ isOnline: navigator.onLine });
       }
 
-      // Read store from db
-      const store = await db.stores.get(DEFAULT_STORE_ID);
-      let members = await db.members.toArray();
-      if (members.length === 0) {
-        await db.members.bulkAdd(DEFAULT_MEMBERS);
+      // 1. Safely initialize and seed IndexedDB if empty
+      await initializeDatabase();
+
+      // 2. Read store from db with safe in-memory fallback
+      let store: StoreBranding | undefined;
+      let members: StoreMember[] = [];
+      let currentShift: CashierShift | undefined;
+
+      try {
+        store = await db.stores.get(DEFAULT_STORE_ID);
+        members = await db.members.toArray();
+        if (members.length === 0) {
+          await db.members.bulkAdd(DEFAULT_MEMBERS);
+          members = DEFAULT_MEMBERS;
+        }
+        currentShift = await db.shifts.where({ status: 'open' }).first();
+      } catch (dbReadErr) {
+        console.warn('Could not read from IndexedDB, using fallback in-memory state:', dbReadErr);
         members = DEFAULT_MEMBERS;
       }
-      const currentShift = await db.shifts.where({ status: 'open' }).first();
 
       const finalBranding = store || DEFAULT_STORE_BRANDING;
       const savedMemberId = loadAuthSession();
@@ -210,8 +229,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       set({
         branding: finalBranding,
-        allMembers: members,
-        activeMember: restoredMember || members[0],
+        allMembers: members.length > 0 ? members : DEFAULT_MEMBERS,
+        activeMember: restoredMember || members[0] || DEFAULT_MEMBERS[0],
         isAuthenticated: Boolean(restoredMember),
         activeTab: 'pos',
         activeShift: currentShift || null,
@@ -220,8 +239,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
       get().applyThemeCssVars(finalBranding.themeColor);
     } catch (e) {
-      console.error('Failed to init store state:', e);
-      set({ isInitializing: false });
+      console.error('Failed to init store state, recovering with default values:', e);
+      set({
+        branding: DEFAULT_STORE_BRANDING,
+        allMembers: DEFAULT_MEMBERS,
+        activeMember: DEFAULT_MEMBERS[0],
+        isAuthenticated: false,
+        activeTab: 'pos',
+        isInitializing: false,
+      });
     }
   },
 

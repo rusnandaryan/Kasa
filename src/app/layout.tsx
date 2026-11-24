@@ -20,7 +20,7 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-amber-100 selection:text-amber-900">
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 font-sans">
         {children}
       </body>
     </html>

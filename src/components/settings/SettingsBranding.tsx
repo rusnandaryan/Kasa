@@ -426,7 +426,7 @@ export const SettingsBranding: React.FC = () => {
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </div>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-100 text-purple-800 font-bold w-fit mt-1">
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 font-bold w-fit mt-1">
                       Kustom
                     </span>
                   </div>

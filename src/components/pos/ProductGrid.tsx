@@ -115,7 +115,7 @@ export const ProductGrid: React.FC = () => {
   return (
     <div className="flex flex-col h-full bg-slate-50 border-r border-slate-200">
       {/* Search & Barcode Header */}
-      <div className="p-3 sm:p-4 bg-white border-b border-slate-200 space-y-2.5">
+      <div className="shrink-0 p-3 sm:p-4 bg-white border-b border-slate-200 space-y-2.5">
         <div className="flex items-center gap-2">
           {/* Search Bar */}
           <div className="relative flex-1">
@@ -238,7 +238,7 @@ export const ProductGrid: React.FC = () => {
       </div>
 
       {/* Product Items Grid */}
-      <div className="flex-1 p-3 sm:p-4 overflow-y-auto">
+      <div className="flex-1 min-h-0 p-3 sm:p-4 overflow-y-auto">
         {filteredProducts.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
             <div className="w-12 h-12 rounded-2xl bg-slate-200/50 flex items-center justify-center mb-3 text-slate-500">

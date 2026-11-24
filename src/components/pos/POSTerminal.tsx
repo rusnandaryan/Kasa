@@ -56,7 +56,7 @@ export const POSTerminal: React.FC = () => {
       : null;
 
   return (
-    <div className="flex-1 flex flex-col md:h-[calc(100vh-10.25rem)] min-h-[480px] overflow-hidden relative">
+    <div className="flex-1 min-h-0 flex flex-col h-[calc(100dvh-8rem)] md:h-[calc(100dvh-10.25rem)] overflow-hidden relative">
       {/* Keyboard Shortcut Accelerator Bar (Desktop / Tablet) */}
       <div className="hidden md:flex items-center justify-between px-4 py-1 bg-slate-100 border-b border-slate-200 text-[11px] text-slate-600 shrink-0">
         <div className="flex items-center gap-3">
@@ -84,12 +84,12 @@ export const POSTerminal: React.FC = () => {
         </div>
       </div>
 
-      {/* Desktop / Tablet Split Screen (65% Products / 35% Cart) */}
-      <div className="flex-1 hidden md:grid md:grid-cols-12 h-full overflow-hidden">
-        <div className="md:col-span-7 lg:col-span-8 h-full overflow-hidden">
+      {/* Desktop / Tablet Split Screen (Balanced 60:40 on laptops/tablets, 66:33 on wide displays) */}
+      <div className="flex-1 min-h-0 hidden md:grid md:grid-cols-12 h-full overflow-hidden">
+        <div className="md:col-span-7 lg:col-span-7 xl:col-span-8 h-full overflow-hidden">
           <ProductGrid />
         </div>
-        <div className="md:col-span-5 lg:col-span-4 h-full overflow-hidden">
+        <div className="md:col-span-5 lg:col-span-5 xl:col-span-4 h-full overflow-hidden">
           <CartPanel
             onOpenPayment={() => setIsPaymentOpen(true)}
             onOpenHoldModal={() => setIsHoldModalOpen(true)}
@@ -100,8 +100,8 @@ export const POSTerminal: React.FC = () => {
       </div>
 
       {/* Mobile Single View Toggle */}
-      <div className="flex-1 md:hidden h-full overflow-hidden flex flex-col">
-        <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 md:hidden h-full overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 overflow-hidden">
           {mobileView === 'catalog' ? (
             <ProductGrid />
           ) : (
@@ -126,7 +126,7 @@ export const POSTerminal: React.FC = () => {
                 }`}
               >
                 <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="animate-pulse absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                 </span>
                 <span>Pesanan Aktif ({heldOrders.length})</span>

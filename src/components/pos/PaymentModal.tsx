@@ -227,7 +227,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       aria-labelledby="payment-modal-title"
       className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4"
     >
-      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92vh] overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92dvh] overflow-hidden animate-in zoom-in-95 duration-150">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
