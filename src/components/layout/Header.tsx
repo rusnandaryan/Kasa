@@ -130,7 +130,7 @@ export const Header: React.FC = () => {
                 onClick={() => setShowMemberDropdown(!showMemberDropdown)}
                 aria-label="Menu akun pengguna aktif"
                 aria-expanded={showMemberDropdown}
-                className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-left transition-colors"
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-slate-300 bg-slate-50 hover:bg-white text-left transition-[background-color,border-color,transform] duration-150 ease-out active:scale-[0.98]"
               >
                 <UserCheck className="w-4 h-4 text-slate-600 shrink-0" />
                 <div className="flex flex-col items-start min-w-0">
@@ -149,11 +149,11 @@ export const Header: React.FC = () => {
                     {ROLE_LABELS[activeMember.role]}
                   </span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-500 shrink-0 transition-transform duration-150 ease-out ${showMemberDropdown ? 'rotate-180' : ''}`} />
               </button>
 
               {showMemberDropdown && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-slate-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-md border border-slate-200/90 py-2 z-50 animate-in fade-in slide-in-from-top-1.5 duration-150 ease-out">
                   <div className="px-3 py-2 border-b border-slate-100 space-y-0.5">
                     <p className="text-xs font-bold text-slate-900 truncate">
                       {activeMember.fullName}
@@ -197,12 +197,12 @@ export const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Direct PIN Lock Button */}
+            {/* Direct PIN Lock Button (Tactile 44px touch target) */}
             <button
               type="button"
               onClick={lockApp}
               aria-label="Kunci Layar Kasir"
-              className="p-2 rounded-lg border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+              className="w-10 h-10 min-w-[40px] min-h-[40px] sm:w-11 sm:h-11 sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 hover:text-slate-900 shadow-2xs active:scale-[0.95] transition-[background-color,border-color,transform] duration-150 ease-out"
               title="Kunci Layar Kasir"
             >
               <Lock className="w-4 h-4" />

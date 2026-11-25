@@ -56,8 +56,8 @@ export const PinLockScreen: React.FC = () => {
   }, [handleKeyClick, handleBackspace, handleClear]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/90 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-sm w-full p-6 sm:p-8 flex flex-col items-center animate-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-xl border border-slate-200/90 max-w-sm w-full p-6 sm:p-8 flex flex-col items-center animate-in zoom-in-95 duration-200 ease-out">
         {/* Brand Logo & Name */}
         <div className="w-16 h-16 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-xs mb-3 flex items-center justify-center">
           {branding.logoUrl ? (
@@ -115,14 +115,14 @@ export const PinLockScreen: React.FC = () => {
           </div>
         )}
 
-        {/* Tactile Keypad */}
+        {/* Tactile Keypad (Raised tactile white surface with tactile 150ms squeeze) */}
         <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
             <button
               key={digit}
               type="button"
               onClick={() => handleKeyClick(digit)}
-              className="h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-xl font-bold text-slate-800 transition-all flex items-center justify-center select-none shadow-2xs"
+              className="h-14 rounded-2xl bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-900 shadow-2xs active:scale-[0.96] text-xl font-bold transition-[background-color,transform] duration-150 ease-out flex items-center justify-center select-none"
             >
               {digit}
             </button>
@@ -132,7 +132,7 @@ export const PinLockScreen: React.FC = () => {
             type="button"
             onClick={handleClear}
             aria-label="Reset input PIN"
-            className="h-14 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 active:scale-95 transition-all flex items-center justify-center select-none"
+            className="h-14 rounded-2xl text-xs font-semibold text-slate-600 hover:bg-slate-100 active:scale-[0.96] transition-[background-color,transform] duration-150 ease-out flex items-center justify-center select-none"
           >
             Reset
           </button>
@@ -140,7 +140,7 @@ export const PinLockScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => handleKeyClick('0')}
-            className="h-14 rounded-2xl bg-slate-100 hover:bg-slate-200 active:bg-slate-300 active:scale-95 text-xl font-bold text-slate-800 transition-all flex items-center justify-center select-none shadow-2xs"
+            className="h-14 rounded-2xl bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-900 shadow-2xs active:scale-[0.96] text-xl font-bold transition-[background-color,transform] duration-150 ease-out flex items-center justify-center select-none"
           >
             0
           </button>
@@ -149,7 +149,7 @@ export const PinLockScreen: React.FC = () => {
             type="button"
             onClick={handleBackspace}
             aria-label="Hapus satu angka PIN"
-            className="h-14 rounded-2xl text-slate-700 hover:bg-slate-100 active:scale-95 transition-all flex items-center justify-center select-none"
+            className="h-14 rounded-2xl text-slate-700 hover:bg-slate-100 active:scale-[0.96] transition-[background-color,transform] duration-150 ease-out flex items-center justify-center select-none"
             title="Hapus"
           >
             <Delete className="w-6 h-6" />

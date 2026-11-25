@@ -225,9 +225,9 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       role="dialog"
       aria-modal="true"
       aria-labelledby="payment-modal-title"
-      className="fixed inset-0 z-50 bg-slate-900/80 flex items-center justify-center p-3 sm:p-4"
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
     >
-      <div className="bg-white rounded-3xl shadow-xl max-w-lg w-full flex flex-col max-h-[92dvh] overflow-hidden animate-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-3xl shadow-xl border border-slate-200/90 max-w-lg w-full flex flex-col max-h-[92dvh] overflow-hidden animate-in zoom-in-95 duration-150 ease-out">
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
           <div>
@@ -332,7 +332,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     key={opt.value}
                     type="button"
                     onClick={() => handleQuickCash(opt.value)}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-xs font-bold text-slate-700 transition-colors tabular-nums"
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.96] text-xs font-bold text-slate-800 shadow-2xs transition-[background-color,transform] duration-150 ease-out tabular-nums"
                   >
                     {opt.label}
                   </button>

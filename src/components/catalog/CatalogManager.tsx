@@ -116,7 +116,7 @@ export const CatalogManager: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Add Category Button (Admin/Owner only) */}
+            {/* Add Category Button: Secondary Raised (Tactile single primary per surface) */}
             {!isCashier && (
               <button
                 type="button"
@@ -124,18 +124,14 @@ export const CatalogManager: React.FC = () => {
                   setEditingCategory(null);
                   setIsCategoryModalOpen(true);
                 }}
-                className="px-4 py-2 rounded-xl text-white text-xs sm:text-sm font-bold shadow-xs hover:opacity-90 transition-all flex items-center gap-1.5"
-                style={{
-                  backgroundColor: 'var(--brand-primary, #2563EB)',
-                  color: 'var(--brand-primary-text, #FFFFFF)',
-                }}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 active:scale-[0.98] text-slate-800 text-xs sm:text-sm font-bold shadow-2xs transition-[background-color,border-color,transform] duration-150 ease-out flex items-center gap-1.5"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-4 h-4 text-slate-500" />
                 <span>Tambah {branding.customTerminology.categoryLabel}</span>
               </button>
             )}
 
-            {/* Add Product Button (Admin/Owner only) */}
+            {/* Add Product Button: Primary Solid Action */}
             {!isCashier && (
               <button
                 type="button"
@@ -143,7 +139,7 @@ export const CatalogManager: React.FC = () => {
                   setEditingProduct(null);
                   setIsProductModalOpen(true);
                 }}
-                className="px-4 py-2 rounded-xl text-white text-xs sm:text-sm font-bold shadow-xs hover:opacity-90 transition-all flex items-center gap-1.5"
+                className="px-4 py-2 rounded-xl text-white text-xs sm:text-sm font-bold shadow-xs hover:opacity-90 active:scale-[0.98] transition-[opacity,transform] duration-150 ease-out flex items-center gap-1.5"
                 style={{
                   backgroundColor: 'var(--brand-primary, #2563EB)',
                   color: 'var(--brand-primary-text, #FFFFFF)',

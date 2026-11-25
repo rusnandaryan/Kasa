@@ -121,17 +121,17 @@ export const CashflowManager: React.FC = () => {
               <span>Laporan Keuangan</span>
             </button>
 
-            {/* Kas Keluar Button */}
+            {/* Tambah Catatan Kas Button: Primary solid action */}
             <button
               type="button"
               onClick={() => {
                 setEntryModalType('expense');
                 setIsEntryModalOpen(true);
               }}
-              className="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs active:scale-[0.98] transition-[background-color,transform] duration-150 ease-out flex items-center gap-1.5"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Tambah Pemasukan/Pengeluaran</span>
+              <span>Catat Kas Keluar / Masuk</span>
             </button>
           </div>
         </div>

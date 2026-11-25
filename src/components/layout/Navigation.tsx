@@ -60,7 +60,7 @@ export const Navigation: React.FC = () => {
                   }
                   setActiveTab(item.id);
                 }}
-                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-150 shrink-0 ${isActive
+                className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-[background-color,color,box-shadow,transform] duration-150 ease-out shrink-0 active:scale-[0.97] ${isActive
                     ? 'shadow-xs text-white'
                     : isRestricted
                       ? 'opacity-40 text-slate-400 cursor-not-allowed hover:bg-slate-50'
